@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CRAAP Tester (Suggested Field Override)</title>
+<title>CRAAP Tester (Independent Evaluation)</title>
 
 <style>
   body {
@@ -67,13 +67,19 @@
   .caution { color: orange; font-weight: bold; }
   .fail { color: red; font-weight: bold; }
 
+  .question {
+    font-style: italic;
+    color: #333;
+    margin-bottom: 6px;
+  }
+
   .small { font-size: 0.9em; color: #555; }
 </style>
 </head>
 
 <body>
 
-<h1>CRAAP Source Evaluator</h1>
+<h1>CRAAP Source Evaluation Tool</h1>
 
 <div class="card">
   <label>Research Topic</label>
@@ -82,7 +88,7 @@
   <label>Source Title / URL / Snippet</label>
   <input id="source" placeholder="Paste title, URL, or excerpt" oninput="suggestField()" />
 
-  <label>Suggested Field (auto-detected)</label>
+  <label>Suggested Field</label>
   <div id="suggestion" class="small"></div>
 
   <label>Selected Field (editable)</label>
@@ -96,22 +102,7 @@
 </div>
 
 <div class="card">
-  <h3>CRAAP Ratings (1–5)</h3>
-
-  <label>Currency</label>
-  <input type="number" id="currency" min="1" max="5" value="3"/>
-
-  <label>Relevance</label>
-  <input type="number" id="relevance" min="1" max="5" value="3"/>
-
-  <label>Authority</label>
-  <input type="number" id="authority" min="1" max="5" value="3"/>
-
-  <label>Accuracy</label>
-  <input type="number" id="accuracy" min="1" max="5" value="3"/>
-
-  <label>Purpose</label>
-  <input type="number" id="purpose" min="1" max="5" value="3"/>
+  <h3>CRAAP Evaluation (Independent Categories)</h3>
 
   <button onclick="evaluate()">Evaluate Source</button>
 
@@ -150,14 +141,14 @@ function detectField(text) {
   let best = "general";
   let bestScore = 0;
 
-  for (let field in rules) {
+  for (let f in rules) {
     let score = 0;
-    for (let k of rules[field]) {
+    for (let k of rules[f]) {
       if (text.includes(k)) score++;
     }
     if (score > bestScore) {
       bestScore = score;
-      best = field;
+      best = f;
     }
   }
 
@@ -168,23 +159,30 @@ function suggestField() {
   const text = document.getElementById("source").value;
   if (!text.trim()) return;
 
-  const suggested = detectField(text);
+  const field = detectField(text);
 
   document.getElementById("suggestion").innerHTML =
-    `Suggested: <strong>${suggested.toUpperCase()}</strong> (you may change it below)`;
+    `Suggested: <strong>${field.toUpperCase()}</strong> (you may override)`;
 
-  // Pre-select suggestion but allow override
-  document.getElementById("field").value = suggested;
+  document.getElementById("field").value = field;
 }
 
 function classify(score) {
-  if (score >= 4) return { status: "PASS", reason: "Strong indicator of reliability." };
-  if (score === 3) return { status: "CAUTION", reason: "Moderate reliability; verify further." };
-  return { status: "FAIL", reason: "Weak or unreliable indicator." };
+  if (score >= 4) return { status: "PASS", color: "pass", reason: "Strong evidence of reliability." };
+  if (score === 3) return { status: "CAUTION", color: "caution", reason: "Moderate reliability; verify supporting evidence." };
+  return { status: "FAIL", color: "fail", reason: "Weak or unreliable indicator." };
 }
 
 function evaluate() {
   const labels = ["Currency", "Relevance", "Authority", "Accuracy", "Purpose"];
+
+  const questions = {
+    Currency: "When was this information published or last updated?",
+    Relevance: "Does this source directly help answer your research question?",
+    Authority: "Who is the author and what are their credentials or expertise?",
+    Accuracy: "Is the information supported by evidence or verifiable sources?",
+    Purpose: "Why was this source created (inform, persuade, sell, entertain)?"
+  };
 
   const scores = [
     +document.getElementById("currency").value,
@@ -196,32 +194,24 @@ function evaluate() {
 
   const field = document.getElementById("field").value;
 
-  let pass = 0;
   let html = "<h3>CRAAP Breakdown</h3>";
 
   for (let i = 0; i < labels.length; i++) {
+    const label = labels[i];
     const result = classify(scores[i]);
-    if (result.status === "PASS") pass++;
 
     html += `
       <div class="box">
-        <p><strong>${labels[i]}</strong></p>
-        <p>Status: <span class="${result.status.toLowerCase()}">${result.status}</span></p>
+        <p><strong>${label}</strong></p>
+        <p class="question">${questions[label]}</p>
+        <p>Score: <strong>${scores[i]}/5</strong></p>
+        <p>Status: <span class="${result.color}">${result.status}</span></p>
         <p class="small">${result.reason}</p>
       </div>
     `;
   }
 
-  let final =
-    pass >= 4 ? "PASS ✔" :
-    pass >= 2 ? "CAUTION ⚠" :
-    "FAIL ✖";
-
-  document.getElementById("result").innerHTML = `
-    <div class="box">
-      <h3>Overall Result: ${final}</h3>
-    </div>
-  `;
+  document.getElementById("result").innerHTML = html;
 
   document.getElementById("meta").innerHTML = `
     <div class="box">
@@ -232,7 +222,8 @@ function evaluate() {
     </div>
 
     <div class="box">
-      <p><strong>Final Selected Field:</strong> ${field.toUpperCase()}</p>
+      <p><strong>Selected Field:</strong> ${field.toUpperCase()}</p>
+      <p class="small">Use these evaluations to decide whether the source is appropriate, and explain your reasoning in your work.</p>
     </div>
   `;
 }
