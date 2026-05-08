@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CRAAP Tester (Full Evaluation)</title>
+<title>CRAAP Tester (Suggested Field Override)</title>
 
 <style>
   body {
@@ -37,7 +37,6 @@
   }
 
   textarea {
-    resize: vertical;
     min-height: 80px;
   }
 
@@ -56,64 +55,48 @@
     background: #1b4fb3;
   }
 
-  .score {
-    font-size: 20px;
-    font-weight: bold;
-    margin-top: 10px;
-  }
-
-  .pass { color: green; }
-  .fail { color: red; }
-  .borderline { color: orange; }
-
   .box {
-    background: #fff;
+    background: white;
     padding: 12px;
     margin: 10px 0;
     border-radius: 8px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   }
 
-  .small {
-    font-size: 0.9em;
-    color: #555;
-  }
+  .pass { color: green; font-weight: bold; }
+  .caution { color: orange; font-weight: bold; }
+  .fail { color: red; font-weight: bold; }
 
-  .warning {
-    color: #b45309;
-    font-weight: bold;
-  }
-
-  .good {
-    color: green;
-    font-weight: bold;
-  }
+  .small { font-size: 0.9em; color: #555; }
 </style>
 </head>
 
 <body>
 
-<h1>CRAAP Source Evaluation Tool</h1>
+<h1>CRAAP Source Evaluator</h1>
 
 <div class="card">
   <label>Research Topic</label>
   <input id="topic" placeholder="What are you researching?" />
 
-  <label>Source Title / URL</label>
-  <input id="source" placeholder="Paste article title or URL" />
+  <label>Source Title / URL / Snippet</label>
+  <input id="source" placeholder="Paste title, URL, or excerpt" oninput="suggestField()" />
 
-  <label>Field</label>
+  <label>Suggested Field (auto-detected)</label>
+  <div id="suggestion" class="small"></div>
+
+  <label>Selected Field (editable)</label>
   <select id="field">
     <option value="stem">STEM / Science</option>
-    <option value="humanities">Humanities</option>
-    <option value="news">News / Journalism</option>
     <option value="medicine">Medicine / Health</option>
+    <option value="news">News / Journalism</option>
+    <option value="humanities">Humanities</option>
     <option value="general">General</option>
   </select>
 </div>
 
 <div class="card">
-  <h3>CRAAP Scores (1–5)</h3>
+  <h3>CRAAP Ratings (1–5)</h3>
 
   <label>Currency</label>
   <input type="number" id="currency" min="1" max="5" value="3"/>
@@ -132,72 +115,72 @@
 
   <button onclick="evaluate()">Evaluate Source</button>
 
-  <div id="result" class="score"></div>
+  <div id="result"></div>
 </div>
 
 <div class="card">
   <h3>Article Breakdown</h3>
 
   <label>Author</label>
-  <input id="author" placeholder="Author name(s)" />
+  <input id="author" />
 
-  <label>Publication Date (Year)</label>
-  <input id="year" type="number" placeholder="e.g. 2023" />
+  <label>Publication Year</label>
+  <input id="year" type="number" />
 
   <label>Publication Outlet</label>
-  <input id="outlet" placeholder="Journal, website, newspaper, etc." />
+  <input id="outlet" />
 
-  <label>Summary of Article</label>
-  <textarea id="summary" placeholder="Brief summary of the article..."></textarea>
+  <label>Summary</label>
+  <textarea id="summary"></textarea>
 
-  <div id="metaFeedback" class="small"></div>
+  <div id="meta"></div>
 </div>
 
 <script>
-function yearRules(field) {
-  return {
-    stem: "STEM sources should generally be within the last 5–7 years.",
-    medicine: "Medical sources should ideally be within the last 3–5 years.",
-    news: "News sources should typically be within the last 1–2 years.",
-    humanities: "Humanities sources can be valid even if 10–20+ years old.",
-    general: "General sources should preferably be within the last 5–10 years."
-  }[field];
+function detectField(text) {
+  text = text.toLowerCase();
+
+  const rules = {
+    stem: ["study", "experiment", "data", "journal", "research", "physics", "chemistry", "biology", "algorithm"],
+    medicine: ["clinical", "patient", "trial", "health", "medical", "hospital", "treatment", "disease"],
+    news: ["breaking", "report", "cnn", "bbc", "article", "today", "press", "news"],
+    humanities: ["history", "philosophy", "literature", "culture", "essay", "analysis", "civilization"]
+  };
+
+  let best = "general";
+  let bestScore = 0;
+
+  for (let field in rules) {
+    let score = 0;
+    for (let k of rules[field]) {
+      if (text.includes(k)) score++;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = field;
+    }
+  }
+
+  return best;
 }
 
-function yearCheck(field, year) {
-  const current = new Date().getFullYear();
+function suggestField() {
+  const text = document.getElementById("source").value;
+  if (!text.trim()) return;
 
-  if (!year) return "No publication year provided.";
+  const suggested = detectField(text);
 
-  const age = current - year;
+  document.getElementById("suggestion").innerHTML =
+    `Suggested: <strong>${suggested.toUpperCase()}</strong> (you may change it below)`;
 
-  switch (field) {
-    case "stem":
-      return age <= 7
-        ? "✔ Acceptable for STEM (within 5–7 year range guideline)."
-        : "⚠ Potentially outdated for STEM.";
+  // Pre-select suggestion but allow override
+  document.getElementById("field").value = suggested;
+}
 
-    case "medicine":
-      return age <= 5
-        ? "✔ Acceptable for medical research (3–5 year guideline)."
-        : "⚠ Possibly outdated for medical context.";
-
-    case "news":
-      return age <= 2
-        ? "✔ Acceptable for journalism (1–2 year guideline)."
-        : "⚠ Likely outdated for news reporting.";
-
-    case "humanities":
-      return "✔ Humanities sources can remain valid even if older; evaluate context.";
-
-    case "general":
-      return age <= 10
-        ? "✔ Acceptable general timeframe."
-        : "⚠ Possibly outdated depending on topic.";
-
-    default:
-      return "";
-  }
+function classify(score) {
+  if (score >= 4) return { status: "PASS", reason: "Strong indicator of reliability." };
+  if (score === 3) return { status: "CAUTION", reason: "Moderate reliability; verify further." };
+  return { status: "FAIL", reason: "Weak or unreliable indicator." };
 }
 
 function evaluate() {
@@ -211,47 +194,47 @@ function evaluate() {
     +document.getElementById("purpose").value
   ];
 
-  let total = 0;
+  const field = document.getElementById("field").value;
 
-  for (let s of scores) total += s / 5; // normalize equally
+  let pass = 0;
+  let html = "<h3>CRAAP Breakdown</h3>";
 
-  let status = "";
-  let cls = "";
+  for (let i = 0; i < labels.length; i++) {
+    const result = classify(scores[i]);
+    if (result.status === "PASS") pass++;
 
-  if (total >= 4) {
-    status = "PASS ✔";
-    cls = "pass";
-  } else if (total >= 3) {
-    status = "BORDERLINE ⚠";
-    cls = "borderline";
-  } else {
-    status = "FAIL ✖";
-    cls = "fail";
+    html += `
+      <div class="box">
+        <p><strong>${labels[i]}</strong></p>
+        <p>Status: <span class="${result.status.toLowerCase()}">${result.status}</span></p>
+        <p class="small">${result.reason}</p>
+      </div>
+    `;
   }
 
-  document.getElementById("result").className = "score " + cls;
-  document.getElementById("result").innerHTML =
-    `Overall Score: ${total.toFixed(2)} / 5 — ${status}`;
+  let final =
+    pass >= 4 ? "PASS ✔" :
+    pass >= 2 ? "CAUTION ⚠" :
+    "FAIL ✖";
 
-  // ARTICLE METADATA
-  const field = document.getElementById("field").value;
-  const year = +document.getElementById("year").value;
+  document.getElementById("result").innerHTML = `
+    <div class="box">
+      <h3>Overall Result: ${final}</h3>
+    </div>
+  `;
 
-  const metaHTML = `
+  document.getElementById("meta").innerHTML = `
     <div class="box">
       <p><strong>Author:</strong> ${document.getElementById("author").value || "Not provided"}</p>
-      <p><strong>Publication Year:</strong> ${year || "Not provided"}</p>
-      <p><strong>Publication Outlet:</strong> ${document.getElementById("outlet").value || "Not provided"}</p>
+      <p><strong>Year:</strong> ${document.getElementById("year").value || "Not provided"}</p>
+      <p><strong>Outlet:</strong> ${document.getElementById("outlet").value || "Not provided"}</p>
       <p><strong>Summary:</strong> ${document.getElementById("summary").value || "Not provided"}</p>
     </div>
 
     <div class="box">
-      <p><strong>Field Guidance:</strong> ${yearRules(field)}</p>
-      <p class="warning"><strong>Year Evaluation:</strong> ${yearCheck(field, year)}</p>
+      <p><strong>Final Selected Field:</strong> ${field.toUpperCase()}</p>
     </div>
   `;
-
-  document.getElementById("metaFeedback").innerHTML = metaHTML;
 }
 </script>
 
