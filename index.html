@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CRAAP Evidence Analyzer</title>
+<title>CRAAP Evidence Analyzer (Full)</title>
 
 <style>
   body {
     font-family: Arial, sans-serif;
-    max-width: 900px;
+    max-width: 950px;
     margin: auto;
     padding: 20px;
     background: #f4f4f4;
@@ -20,8 +20,8 @@
     background: white;
     padding: 15px;
     margin: 12px 0;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
   }
 
   label {
@@ -34,11 +34,11 @@
     width: 100%;
     padding: 10px;
     margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
   }
 
-  textarea {
-    height: 180px;
-  }
+  textarea { height: 180px; }
 
   button {
     width: 100%;
@@ -47,41 +47,87 @@
     background: #2d6cdf;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: bold;
   }
 
   button:hover { background: #1b4fb3; }
 
-  .box {
+  /* ===== CRAAP CARDS ===== */
+
+  .craap-card {
     background: white;
-    padding: 12px;
-    margin-top: 10px;
-    border-radius: 8px;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     border-left: 6px solid #ccc;
   }
 
-  .pass { border-left-color: green; color: green; }
-  .caution { border-left-color: orange; color: orange; }
-  .fail { border-left-color: red; color: red; }
+  .pass { border-left-color: #2ecc71; }
+  .caution { border-left-color: #f39c12; }
+  .fail { border-left-color: #e74c3c; }
 
-  .question {
-    font-style: italic;
-    color: #444;
+  .craap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .craap-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+  }
+
+  .badge.pass { background: #2ecc71; }
+  .badge.caution { background: #f39c12; }
+  .badge.fail { background: #e74c3c; }
+
+  .section {
+    margin-top: 10px;
+  }
+
+  .label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .text {
+    font-size: 14px;
+    color: #222;
+  }
+
+  .evidence-box {
+    margin-top: 8px;
+    background: #f7f7f7;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    border-left: 3px solid #999;
   }
 
   .small {
     font-size: 0.9em;
     color: #555;
-    margin-top: 6px;
   }
 
-  .evidence {
-    background: #f8f8f8;
-    padding: 8px;
-    margin-top: 8px;
-    border-left: 4px solid #999;
-    font-size: 0.9em;
+  .suggested {
+    color: red;
+    font-weight: bold;
+    margin-top: 6px;
+    display: block;
   }
 </style>
 </head>
@@ -95,12 +141,11 @@
   <label>Your Research Topic</label>
   <input id="topic" placeholder="e.g., climate change, AI, civil rights..." />
 
-  <!-- PUBLICATION FIELD -->
   <label>Publication Field (field the article was written in)</label>
 
   <p class="small">
-    Select the field that best describes how the article was written (not your research topic).
-    This affects how CRAAP rules are applied.
+    Select the field that best describes how the article was written (NOT your research topic).
+    This determines CRAAP expectations like acceptable publication age.
   </p>
 
   <select id="field">
@@ -111,7 +156,7 @@
     <option value="news">News / Journalism (reporting, media articles)</option>
   </select>
 
-  <span id="suggestedField" style="color:red; font-weight:bold; display:block; margin-top:5px;"></span>
+  <span id="suggestedField" class="suggested"></span>
 
   <label>Paste Full Article Text</label>
   <textarea id="source" placeholder="Paste full article text here..."></textarea>
@@ -126,39 +171,25 @@
 
 <script>
 
-/* -------------------------
+/* =========================
    FIELD SUGGESTION ENGINE
--------------------------- */
+========================= */
 
 function suggestField(text) {
   text = text.toLowerCase();
 
-  if (text.includes("clinical") || text.includes("trial") || text.includes("patient") || text.includes("study")) {
-    return "science";
-  }
-
-  if (text.includes("algorithm") || text.includes("software") || text.includes("ai") || text.includes("computer")) {
-    return "technology";
-  }
-
-  if (text.includes("survey") || text.includes("society") || text.includes("economic") || text.includes("behavior")) {
-    return "social";
-  }
-
-  if (text.includes("history") || text.includes("philosophy") || text.includes("literature")) {
-    return "humanities";
-  }
-
-  if (text.includes("reported") || text.includes("journalist") || text.includes("breaking") || text.includes("said")) {
-    return "news";
-  }
+  if (text.includes("clinical") || text.includes("trial") || text.includes("patient")) return "science";
+  if (text.includes("ai") || text.includes("algorithm") || text.includes("software")) return "technology";
+  if (text.includes("survey") || text.includes("economy") || text.includes("behavior")) return "social";
+  if (text.includes("history") || text.includes("philosophy") || text.includes("literature")) return "humanities";
+  if (text.includes("reported") || text.includes("journalist") || text.includes("breaking")) return "news";
 
   return null;
 }
 
-/* -------------------------
-   SENTENCE EVIDENCE
--------------------------- */
+/* =========================
+   TEXT UTILITIES
+========================= */
 
 function getSentences(text) {
   return text.split(/(?<=[.!?])\s+/);
@@ -168,43 +199,47 @@ function findEvidence(text, keywords = []) {
   const sentences = getSentences(text);
   return sentences.find(s =>
     keywords.some(k => s.toLowerCase().includes(k))
-  ) || "No specific sentence detected.";
+  ) || "No specific supporting sentence found.";
 }
 
-/* -------------------------
-   YEAR DETECTION
--------------------------- */
+/* =========================
+   EXTRACTION FUNCTIONS
+========================= */
 
 function findYear(text) {
   const match = text.match(/\b(19\d{2}|20\d{2})\b/);
   return match ? parseInt(match[0]) : null;
 }
 
-/* -------------------------
-   CREDIBLE SOURCE CHECK
--------------------------- */
+function extractAuthor(text) {
+  const match = text.match(/by ([a-z\s]+)(,|\.|\n)/i);
+  return match ? match[1].trim() : null;
+}
 
-function detectPublisher(text) {
-  const known = {
-    "new york times": "highly credible news outlet",
-    "washington post": "highly credible news outlet",
-    "bbc": "highly credible international news outlet",
-    "reuters": "highly credible wire service",
-    "associated press": "highly credible wire service"
-  };
-
-  for (let key in known) {
-    if (text.includes(key)) {
-      return { name: key, credibility: known[key] };
-    }
+function extractCredentials(text) {
+  if (text.match(/phd|m\.d\.|professor|dr\./i)) {
+    return "Academic/Professional credential detected";
   }
-
   return null;
 }
 
-/* -------------------------
+/* =========================
+   FIELD RULES
+========================= */
+
+function getMaxAge(field) {
+  return {
+    technology: 7,
+    science: 10,
+    social: 15,
+    humanities: 30,
+    news: 3
+  }[field] || 10;
+}
+
+/* =========================
    MAIN FUNCTION
--------------------------- */
+========================= */
 
 function evaluateCRAAP() {
 
@@ -213,31 +248,24 @@ function evaluateCRAAP() {
   const field = document.getElementById("field").value;
 
   const suggested = suggestField(text);
-  const suggestedBox = document.getElementById("suggestedField");
+  const suggestionBox = document.getElementById("suggestedField");
 
   if (suggested) {
-    suggestedBox.innerText = "Suggested field: " + suggested.toUpperCase();
+    suggestionBox.innerText = "Suggested Field: " + suggested.toUpperCase();
     document.getElementById("field").value = suggested;
   } else {
-    suggestedBox.innerText = "";
+    suggestionBox.innerText = "";
   }
 
   const year = findYear(text);
   const currentYear = new Date().getFullYear();
+  const maxAge = getMaxAge(field);
 
-  const maxAge = {
-    technology: 7,
-    science: 10,
-    social: 15,
-    humanities: 30,
-    news: 3
-  }[field];
-
-  const publisher = detectPublisher(text);
+  const author = extractAuthor(text);
+  const credentials = extractCredentials(text);
 
   const categories = [
 
-    /* ---------------- CURRENCY ---------------- */
     {
       name: "Currency",
       evaluate: () => {
@@ -248,7 +276,7 @@ function evaluateCRAAP() {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "No publication year found in text, so currency cannot be verified.",
+            explanation: "No publication date found in text.",
             evidence
           };
         }
@@ -259,8 +287,7 @@ function evaluateCRAAP() {
           return {
             status: "PASS",
             class: "pass",
-            explanation:
-              `Published in ${year}. In ${field}, sources within ~${maxAge} years are considered acceptable.`,
+            explanation: `Published in ${year}. This is acceptable for ${field}.`,
             evidence
           };
         }
@@ -268,53 +295,38 @@ function evaluateCRAAP() {
         return {
           status: "FAIL",
           class: "fail",
-          explanation:
-            `Published in ${year}. This is ${age} years old, which exceeds the acceptable range for ${field} (~${maxAge} years).`,
+          explanation: `Published in ${year}, which is too old for ${field} (max ~${maxAge} years).`,
           evidence
         };
       }
     },
 
-    /* ---------------- AUTHORITY ---------------- */
     {
       name: "Authority",
       evaluate: () => {
 
-        const evidence = findEvidence(text, ["author", "by"]);
+        const evidence = findEvidence(text, ["by", "author"]);
 
-        const hasAuthor = text.includes("author");
-
-        if (!hasAuthor) {
+        if (!author) {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation:
-              "No specific author is named. This limits accountability and credibility verification.",
-            evidence
-          };
-        }
-
-        if (publisher) {
-          return {
-            status: "PASS",
-            class: "pass",
-            explanation:
-              `Author is present and source is from ${publisher.name}, which is considered a ${publisher.credibility}.`,
+            explanation: "No author is named in the text.",
             evidence
           };
         }
 
         return {
-          status: "CAUTION",
-          class: "caution",
+          status: "PASS",
+          class: "pass",
           explanation:
-            "Author is present, but publication source is not clearly identifiable or widely recognized.",
+            `Author: ${author}. ` +
+            (credentials ? credentials : "No credentials explicitly stated."),
           evidence
         };
       }
     },
 
-    /* ---------------- RELEVANCE ---------------- */
     {
       name: "Relevance",
       evaluate: () => {
@@ -325,7 +337,7 @@ function evaluateCRAAP() {
           return {
             status: "PASS",
             class: "pass",
-            explanation: `Direct reference to "${topic}" found in the text.`,
+            explanation: `Direct match with topic: "${topic}".`,
             evidence
           };
         }
@@ -333,14 +345,12 @@ function evaluateCRAAP() {
         return {
           status: "FAIL",
           class: "fail",
-          explanation:
-            "No clear connection between article content and research topic was found.",
+          explanation: "No clear connection to research topic.",
           evidence
         };
       }
     },
 
-    /* ---------------- ACCURACY ---------------- */
     {
       name: "Accuracy",
       evaluate: () => {
@@ -351,8 +361,7 @@ function evaluateCRAAP() {
           return {
             status: "PASS",
             class: "pass",
-            explanation:
-              "The text includes references to data or research, indicating evidence-based claims.",
+            explanation: "Evidence or research language detected.",
             evidence
           };
         }
@@ -360,14 +369,12 @@ function evaluateCRAAP() {
         return {
           status: "FAIL",
           class: "fail",
-          explanation:
-            "No supporting data, citations, or references were found.",
+          explanation: "No evidence or citations detected.",
           evidence
         };
       }
     },
 
-    /* ---------------- PURPOSE ---------------- */
     {
       name: "Purpose",
       evaluate: () => {
@@ -378,8 +385,7 @@ function evaluateCRAAP() {
           return {
             status: "FAIL",
             class: "fail",
-            explanation:
-              "Commercial intent detected (advertising or selling content).",
+            explanation: "Commercial intent detected.",
             evidence
           };
         }
@@ -388,8 +394,7 @@ function evaluateCRAAP() {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation:
-              "Opinion-based content detected, which may introduce bias.",
+            explanation: "Opinion-based content detected.",
             evidence
           };
         }
@@ -397,8 +402,7 @@ function evaluateCRAAP() {
         return {
           status: "PASS",
           class: "pass",
-          explanation:
-            "Informational intent detected.",
+          explanation: "Informational purpose detected.",
           evidence
         };
       }
@@ -412,11 +416,23 @@ function evaluateCRAAP() {
     const result = c.evaluate();
 
     html += `
-      <div class="box ${result.class}">
-        <h3>${c.name}</h3>
-        <p><strong>${result.status}</strong></p>
-        <p class="small">${result.explanation}</p>
-        <div class="evidence"><strong>Evidence:</strong><br>${result.evidence}</div>
+      <div class="craap-card ${result.class}">
+
+        <div class="craap-header">
+          <div class="craap-title">${c.name}</div>
+          <div class="badge ${result.class}">${result.status}</div>
+        </div>
+
+        <div class="section">
+          <div class="label">Evaluation</div>
+          <div class="text">${result.explanation}</div>
+        </div>
+
+        <div class="section">
+          <div class="label">Evidence</div>
+          <div class="evidence-box">${result.evidence}</div>
+        </div>
+
       </div>
     `;
   }
