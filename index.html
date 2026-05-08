@@ -98,109 +98,163 @@
 </div>
 
 <script>
-function scoreToResult(score) {
-  if (score >= 4) {
-    return {
-      label: "PASS",
-      class: "pass",
-      explanation: "Strong reliability for this category."
-    };
-  }
-  if (score === 3) {
-    return {
-      label: "CAUTION",
-      class: "caution",
-      explanation: "Moderate reliability; requires cross-checking."
-    };
-  }
-  return {
-    label: "FAIL",
-    class: "fail",
-    explanation: "Low reliability for academic use."
-  };
-}
-
-/* -------------------------
-   SIMPLE AUTO-EVALUATION MODEL
-   (rule-based heuristics)
--------------------------- */
-
 function evaluateCRAAP() {
   const text = document.getElementById("source").value.toLowerCase();
-
-  // --- CURRENCY ---
-  let currency = 3;
-  if (text.match(/202[3-6]/)) currency = 5;
-  else if (text.match(/202[0-2]/)) currency = 4;
-  else if (text.match(/201[0-9]/)) currency = 2;
-  else currency = 3;
-
-  // --- RELEVANCE ---
-  let relevance = 3;
-  if (text.includes("study") || text.includes("research")) relevance = 5;
-  else if (text.includes("overview") || text.includes("general")) relevance = 3;
-  else relevance = 2;
-
-  // --- AUTHORITY ---
-  let authority = 3;
-  if (text.includes(".edu") || text.includes("journal") || text.includes("university")) authority = 5;
-  else if (text.includes("news") || text.includes("bbc") || text.includes("cnn")) authority = 4;
-  else if (text.includes("blog") || text.includes("medium")) authority = 2;
-  else authority = 3;
-
-  // --- ACCURACY ---
-  let accuracy = 3;
-  if (text.includes("data") || text.includes("references") || text.includes("doi")) accuracy = 5;
-  else if (text.includes("reported") || text.includes("said")) accuracy = 3;
-  else accuracy = 2;
-
-  // --- PURPOSE ---
-  let purpose = 3;
-  if (text.includes("advert") || text.includes("buy") || text.includes("sale")) purpose = 1;
-  else if (text.includes("opinion") || text.includes("editorial")) purpose = 2;
-  else if (text.includes("report") || text.includes("inform")) purpose = 4;
-  else purpose = 3;
 
   const categories = [
     {
       name: "Currency",
       question: "Is the information current and up to date?",
-      score: currency
+      evaluate: () => {
+        if (text.match(/202[3-6]/)) {
+          return {
+            status: "PASS",
+            class: "pass",
+            explanation: "A recent publication year is detected, suggesting up-to-date information."
+          };
+        } else if (text.match(/201[0-9]|202[0-2]/)) {
+          return {
+            status: "CAUTION",
+            class: "caution",
+            explanation: "The source appears older, which may reduce reliability depending on the topic."
+          };
+        } else {
+          return {
+            status: "CAUTION",
+            class: "caution",
+            explanation: "No clear publication date was detected, so currency cannot be verified."
+          };
+        }
+      }
     },
+
     {
       name: "Relevance",
       question: "Does this source directly support your research topic?",
-      score: relevance
+      evaluate: () => {
+        if (text.includes("study") || text.includes("research")) {
+          return {
+            status: "PASS",
+            class: "pass",
+            explanation: "The source contains indicators of academic or research relevance."
+          };
+        } else if (text.includes("overview") || text.includes("general")) {
+          return {
+            status: "CAUTION",
+            class: "caution",
+            explanation: "The source appears general and may only partially address the research question."
+          };
+        } else {
+          return {
+            status: "FAIL",
+            class: "fail",
+            explanation: "No strong indicators of direct relevance to an academic research question were found."
+          };
+        }
+      }
     },
+
     {
       name: "Authority",
       question: "Who created the source and are they credible?",
-      score: authority
+      evaluate: () => {
+        if (text.includes(".edu") || text.includes("journal") || text.includes("university")) {
+          return {
+            status: "PASS",
+            class: "pass",
+            explanation: "The source is associated with an academic or institutional domain, suggesting strong authority."
+          };
+        } else if (text.includes("bbc") || text.includes("cnn") || text.includes("news")) {
+          return {
+            status: "CAUTION",
+            class: "caution",
+            explanation: "The source is a media outlet, which may be credible but can vary in author expertise."
+          };
+        } else if (text.includes("blog") || text.includes("medium")) {
+          return {
+            status: "FAIL",
+            class: "fail",
+            explanation: "The source appears to be a blog platform with unclear author credentials."
+          };
+        } else {
+          return {
+            status: "CAUTION",
+            class: "caution",
+            explanation: "No clear author or institutional affiliation was detected."
+          };
+        }
+      }
     },
+
     {
       name: "Accuracy",
       question: "Is the information supported by evidence?",
-      score: accuracy
+      evaluate: () => {
+        if (text.includes("doi") || text.includes("references") || text.includes("data")) {
+          return {
+            status: "PASS",
+            class: "pass",
+            explanation: "The source references data or citations, suggesting evidence-based content."
+          };
+        } else if (text.includes("said") || text.includes("reported")) {
+          return {
+            status: "CAUTION",
+            class: "caution",
+            explanation: "The source includes reported claims but lacks clear supporting citations."
+          };
+        } else {
+          return {
+            status: "FAIL",
+            class: "fail",
+            explanation: "No evidence or citations were detected to support claims."
+          };
+        }
+      }
     },
+
     {
       name: "Purpose",
       question: "Why was this source created?",
-      score: purpose
+      evaluate: () => {
+        if (text.includes("advert") || text.includes("buy") || text.includes("sale")) {
+          return {
+            status: "FAIL",
+            class: "fail",
+            explanation: "The source appears to have a commercial intent."
+          };
+        } else if (text.includes("opinion") || text.includes("editorial")) {
+          return {
+            status: "CAUTION",
+            class: "caution",
+            explanation: "The source contains opinion-based content, which may introduce bias."
+          };
+        } else if (text.includes("report") || text.includes("inform")) {
+          return {
+            status: "PASS",
+            class: "pass",
+            explanation: "The source appears to have an informational purpose."
+          };
+        } else {
+          return {
+            status: "CAUTION",
+            class: "caution",
+            explanation: "The purpose of the source is unclear from available signals."
+          };
+        }
+      }
     }
   ];
 
   let html = "";
 
   for (let c of categories) {
-    const result = scoreToResult(c.score);
+    const result = c.evaluate();
 
     html += `
       <div class="box ${result.class}">
         <h3>${c.name}</h3>
         <p class="question">${c.question}</p>
-
-        <p>Score: <strong>${c.score}/5</strong></p>
-        <p>Status: ${result.label}</p>
+        <p>Status: <strong>${result.status}</strong></p>
         <p class="small">${result.explanation}</p>
       </div>
     `;
