@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CRAAP Tester (Independent Evaluation)</title>
+<title>CRAAP Source Evaluation Tool</title>
 
 <style>
   body {
@@ -81,8 +81,9 @@
 
 <h1>CRAAP Source Evaluation Tool</h1>
 
+<!-- TOP INPUT SECTION -->
 <div class="card">
-  <label>Research Topic</label>
+  <label>Your Research Topic</label>
   <input id="topic" placeholder="What are you researching?" />
 
   <label>Source Title / URL / Snippet</label>
@@ -99,16 +100,21 @@
     <option value="humanities">Humanities</option>
     <option value="general">General</option>
   </select>
-</div>
-
-<div class="card">
-  <h3>CRAAP Evaluation (Independent Categories)</h3>
 
   <button onclick="evaluate()">Evaluate Source</button>
-
-  <div id="result"></div>
 </div>
 
+<!-- CRAAP OUTPUT -->
+<div class="card">
+  <h3>CRAAP Evaluation (Independent Categories)</h3>
+  <div id="result">
+    <div class="box small">
+      CRAAP evaluation will appear here after clicking “Evaluate Source”.
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE METADATA -->
 <div class="card">
   <h3>Article Breakdown</h3>
 
@@ -168,8 +174,8 @@ function suggestField() {
 }
 
 function classify(score) {
-  if (score >= 4) return { status: "PASS", color: "pass", reason: "Strong evidence of reliability." };
-  if (score === 3) return { status: "CAUTION", color: "caution", reason: "Moderate reliability; verify supporting evidence." };
+  if (score >= 4) return { status: "PASS", color: "pass", reason: "Strong reliability indicator." };
+  if (score === 3) return { status: "CAUTION", color: "caution", reason: "Moderate reliability; verify further." };
   return { status: "FAIL", color: "fail", reason: "Weak or unreliable indicator." };
 }
 
@@ -185,11 +191,11 @@ function evaluate() {
   };
 
   const scores = [
-    +document.getElementById("currency").value,
-    +document.getElementById("relevance").value,
-    +document.getElementById("authority").value,
-    +document.getElementById("accuracy").value,
-    +document.getElementById("purpose").value
+    +document.getElementById("currency")?.value || 0,
+    +document.getElementById("relevance")?.value || 0,
+    +document.getElementById("authority")?.value || 0,
+    +document.getElementById("accuracy")?.value || 0,
+    +document.getElementById("purpose")?.value || 0
   ];
 
   const field = document.getElementById("field").value;
@@ -198,13 +204,14 @@ function evaluate() {
 
   for (let i = 0; i < labels.length; i++) {
     const label = labels[i];
-    const result = classify(scores[i]);
+    const score = scores[i];
+    const result = classify(score);
 
     html += `
       <div class="box">
         <p><strong>${label}</strong></p>
         <p class="question">${questions[label]}</p>
-        <p>Score: <strong>${scores[i]}/5</strong></p>
+        <p>Score: <strong>${score}/5</strong></p>
         <p>Status: <span class="${result.color}">${result.status}</span></p>
         <p class="small">${result.reason}</p>
       </div>
@@ -223,7 +230,6 @@ function evaluate() {
 
     <div class="box">
       <p><strong>Selected Field:</strong> ${field.toUpperCase()}</p>
-      <p class="small">Use these evaluations to decide whether the source is appropriate, and explain your reasoning in your work.</p>
     </div>
   `;
 }
