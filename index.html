@@ -24,13 +24,21 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
+  label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+  }
+
   input, select, textarea {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
   }
 
-  textarea { height: 180px; }
+  textarea {
+    height: 180px;
+  }
 
   button {
     width: 100%;
@@ -57,9 +65,16 @@
   .caution { border-left-color: orange; color: orange; }
   .fail { border-left-color: red; color: red; }
 
-  .question { font-style: italic; color: #444; }
+  .question {
+    font-style: italic;
+    color: #444;
+  }
 
-  .small { font-size: 0.9em; color: #555; margin-top: 6px; }
+  .small {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 6px;
+  }
 
   .evidence {
     background: #f8f8f8;
@@ -80,14 +95,23 @@
   <label>Your Research Topic</label>
   <input id="topic" placeholder="e.g., climate change, AI, civil rights..." />
 
-  <label>Field of Study</label>
+  <!-- PUBLICATION FIELD -->
+  <label>Publication Field (field the article was written in)</label>
+
+  <p class="small">
+    Select the field that best describes how the article was written (not your research topic).
+    This affects how CRAAP rules are applied.
+  </p>
+
   <select id="field">
-    <option value="science">Science / Medicine</option>
-    <option value="technology">Technology</option>
-    <option value="social">Social Science</option>
-    <option value="humanities">Humanities</option>
-    <option value="news">News / Journalism</option>
+    <option value="science">Science / Medicine (clinical studies, lab research)</option>
+    <option value="technology">Technology (AI, computing, engineering, software)</option>
+    <option value="social">Social Science (psychology, sociology, economics)</option>
+    <option value="humanities">Humanities (history, philosophy, literature)</option>
+    <option value="news">News / Journalism (reporting, media articles)</option>
   </select>
+
+  <span id="suggestedField" style="color:red; font-weight:bold; display:block; margin-top:5px;"></span>
 
   <label>Paste Full Article Text</label>
   <textarea id="source" placeholder="Paste full article text here..."></textarea>
@@ -103,7 +127,37 @@
 <script>
 
 /* -------------------------
-   UTIL: SENTENCE MATCHING
+   FIELD SUGGESTION ENGINE
+-------------------------- */
+
+function suggestField(text) {
+  text = text.toLowerCase();
+
+  if (text.includes("clinical") || text.includes("trial") || text.includes("patient") || text.includes("study")) {
+    return "science";
+  }
+
+  if (text.includes("algorithm") || text.includes("software") || text.includes("ai") || text.includes("computer")) {
+    return "technology";
+  }
+
+  if (text.includes("survey") || text.includes("society") || text.includes("economic") || text.includes("behavior")) {
+    return "social";
+  }
+
+  if (text.includes("history") || text.includes("philosophy") || text.includes("literature")) {
+    return "humanities";
+  }
+
+  if (text.includes("reported") || text.includes("journalist") || text.includes("breaking") || text.includes("said")) {
+    return "news";
+  }
+
+  return null;
+}
+
+/* -------------------------
+   SENTENCE EVIDENCE
 -------------------------- */
 
 function getSentences(text) {
@@ -114,22 +168,7 @@ function findEvidence(text, keywords = []) {
   const sentences = getSentences(text);
   return sentences.find(s =>
     keywords.some(k => s.toLowerCase().includes(k))
-  ) || "No specific supporting sentence detected.";
-}
-
-/* -------------------------
-   FIELD RULES
--------------------------- */
-
-function getCurrencyRule(field) {
-  switch(field) {
-    case "technology": return 7;
-    case "science": return 10;
-    case "social": return 15;
-    case "humanities": return 30;
-    case "news": return 3;
-    default: return 10;
-  }
+  ) || "No specific sentence detected.";
 }
 
 /* -------------------------
@@ -142,7 +181,7 @@ function findYear(text) {
 }
 
 /* -------------------------
-   AUTHORITY CHECK
+   CREDIBLE SOURCE CHECK
 -------------------------- */
 
 function detectPublisher(text) {
@@ -164,7 +203,7 @@ function detectPublisher(text) {
 }
 
 /* -------------------------
-   MAIN
+   MAIN FUNCTION
 -------------------------- */
 
 function evaluateCRAAP() {
@@ -173,9 +212,26 @@ function evaluateCRAAP() {
   const topic = document.getElementById("topic").value.toLowerCase();
   const field = document.getElementById("field").value;
 
+  const suggested = suggestField(text);
+  const suggestedBox = document.getElementById("suggestedField");
+
+  if (suggested) {
+    suggestedBox.innerText = "Suggested field: " + suggested.toUpperCase();
+    document.getElementById("field").value = suggested;
+  } else {
+    suggestedBox.innerText = "";
+  }
+
   const year = findYear(text);
   const currentYear = new Date().getFullYear();
-  const maxAge = getCurrencyRule(field);
+
+  const maxAge = {
+    technology: 7,
+    science: 10,
+    social: 15,
+    humanities: 30,
+    news: 3
+  }[field];
 
   const publisher = detectPublisher(text);
 
@@ -192,7 +248,7 @@ function evaluateCRAAP() {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "No publication year was found in the text, so currency cannot be verified.",
+            explanation: "No publication year found in text, so currency cannot be verified.",
             evidence
           };
         }
@@ -203,7 +259,8 @@ function evaluateCRAAP() {
           return {
             status: "PASS",
             class: "pass",
-            explanation: `Published in ${year}, which is recent enough for ${field} (acceptable range: ≤${maxAge} years).`,
+            explanation:
+              `Published in ${year}. In ${field}, sources within ~${maxAge} years are considered acceptable.`,
             evidence
           };
         }
@@ -211,7 +268,8 @@ function evaluateCRAAP() {
         return {
           status: "FAIL",
           class: "fail",
-          explanation: `Published in ${year}, which is too old for ${field} (acceptable range: ≤${maxAge} years).`,
+          explanation:
+            `Published in ${year}. This is ${age} years old, which exceeds the acceptable range for ${field} (~${maxAge} years).`,
           evidence
         };
       }
@@ -222,15 +280,16 @@ function evaluateCRAAP() {
       name: "Authority",
       evaluate: () => {
 
-        const authorMentioned = text.includes("author");
-
         const evidence = findEvidence(text, ["author", "by"]);
 
-        if (!authorMentioned) {
+        const hasAuthor = text.includes("author");
+
+        if (!hasAuthor) {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "No specific author is named in the text, which limits the ability to verify credibility.",
+            explanation:
+              "No specific author is named. This limits accountability and credibility verification.",
             evidence
           };
         }
@@ -239,7 +298,8 @@ function evaluateCRAAP() {
           return {
             status: "PASS",
             class: "pass",
-            explanation: `Author is mentioned and the source is from ${publisher.name}, which is considered a ${publisher.credibility}.`,
+            explanation:
+              `Author is present and source is from ${publisher.name}, which is considered a ${publisher.credibility}.`,
             evidence
           };
         }
@@ -247,7 +307,8 @@ function evaluateCRAAP() {
         return {
           status: "CAUTION",
           class: "caution",
-          explanation: "An author is mentioned, but the publication outlet is not clearly identifiable or is not widely recognized.",
+          explanation:
+            "Author is present, but publication source is not clearly identifiable or widely recognized.",
           evidence
         };
       }
@@ -264,7 +325,7 @@ function evaluateCRAAP() {
           return {
             status: "PASS",
             class: "pass",
-            explanation: `The text directly references "${topic}", showing strong relevance.`,
+            explanation: `Direct reference to "${topic}" found in the text.`,
             evidence
           };
         }
@@ -272,7 +333,8 @@ function evaluateCRAAP() {
         return {
           status: "FAIL",
           class: "fail",
-          explanation: "No clear connection between the article and your research topic was found.",
+          explanation:
+            "No clear connection between article content and research topic was found.",
           evidence
         };
       }
@@ -283,13 +345,14 @@ function evaluateCRAAP() {
       name: "Accuracy",
       evaluate: () => {
 
-        const evidence = findEvidence(text, ["data", "study", "research", "reference", "doi"]);
+        const evidence = findEvidence(text, ["data", "study", "research", "doi"]);
 
         if (text.includes("data") || text.includes("study")) {
           return {
             status: "PASS",
             class: "pass",
-            explanation: "The text includes references to data or research, suggesting evidence-based content.",
+            explanation:
+              "The text includes references to data or research, indicating evidence-based claims.",
             evidence
           };
         }
@@ -297,7 +360,8 @@ function evaluateCRAAP() {
         return {
           status: "FAIL",
           class: "fail",
-          explanation: "No clear evidence, citations, or data were found in the text.",
+          explanation:
+            "No supporting data, citations, or references were found.",
           evidence
         };
       }
@@ -314,7 +378,8 @@ function evaluateCRAAP() {
           return {
             status: "FAIL",
             class: "fail",
-            explanation: "The text suggests a commercial purpose (advertising or selling).",
+            explanation:
+              "Commercial intent detected (advertising or selling content).",
             evidence
           };
         }
@@ -323,7 +388,8 @@ function evaluateCRAAP() {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "The text appears opinion-based, which may introduce subjective bias.",
+            explanation:
+              "Opinion-based content detected, which may introduce bias.",
             evidence
           };
         }
@@ -331,8 +397,9 @@ function evaluateCRAAP() {
         return {
           status: "PASS",
           class: "pass",
-          explanation: "The text appears informational in purpose.",
-            evidence
+          explanation:
+            "Informational intent detected.",
+          evidence
         };
       }
     }
