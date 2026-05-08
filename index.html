@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CRAAP Auto-Evaluator</title>
+<title>CRAAP Text Analyzer</title>
 
 <style>
   body {
@@ -24,16 +24,12 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
-  label {
-    font-weight: bold;
-    display: block;
-    margin-top: 10px;
-  }
-
-  input {
+  textarea {
     width: 100%;
-    padding: 8px;
+    height: 180px;
+    padding: 10px;
     margin-top: 5px;
+    font-family: Arial;
   }
 
   button {
@@ -47,9 +43,7 @@
     cursor: pointer;
   }
 
-  button:hover {
-    background: #1b4fb3;
-  }
+  button:hover { background: #1b4fb3; }
 
   .box {
     background: white;
@@ -78,79 +72,103 @@
 
 <body>
 
-<h1>CRAAP Auto-Evaluator</h1>
+<h1>CRAAP Text Analyzer</h1>
 
 <div class="card">
   <label>Your Research Topic</label>
   <input id="topic" placeholder="What are you researching?" />
 
-  <label>Article Title / URL / Text</label>
-  <input id="source" placeholder="Paste article title or URL" />
+  <label>Paste Full Article Text</label>
+  <textarea id="source" placeholder="Paste the full article here..."></textarea>
 
   <button onclick="evaluateCRAAP()">Evaluate Source</button>
 </div>
 
 <div class="card">
   <h2>CRAAP Analysis</h2>
-  <div id="output">
-    <div class="box small">Results will appear here after evaluation.</div>
-  </div>
+  <div id="output">Results will appear here.</div>
 </div>
 
 <script>
 function evaluateCRAAP() {
+
   const text = document.getElementById("source").value.toLowerCase();
 
+  const findYear = () => {
+    const match = text.match(/\b(19\d{2}|20\d{2})\b/);
+    return match ? parseInt(match[0]) : null;
+  };
+
+  const year = findYear();
+  const currentYear = new Date().getFullYear();
+
   const categories = [
+
     {
       name: "Currency",
       question: "Is the information current and up to date?",
       evaluate: () => {
-        if (text.match(/202[3-6]/)) {
+
+        if (!year) {
+          return {
+            status: "CAUTION",
+            class: "caution",
+            explanation: "No publication year was found in the article text, so currency cannot be verified."
+          };
+        }
+
+        if (year >= currentYear - 3) {
           return {
             status: "PASS",
             class: "pass",
-            explanation: "A recent publication year is detected, suggesting up-to-date information."
-          };
-        } else if (text.match(/201[0-9]|202[0-2]/)) {
-          return {
-            status: "CAUTION",
-            class: "caution",
-            explanation: "The source appears older, which may reduce reliability depending on the topic."
-          };
-        } else {
-          return {
-            status: "CAUTION",
-            class: "caution",
-            explanation: "No clear publication date was detected, so currency cannot be verified."
+            explanation: `This article was published in ${year}, which is recent and appropriate for most academic research.`
           };
         }
+
+        if (year >= currentYear - 10) {
+          return {
+            status: "CAUTION",
+            class: "caution",
+            explanation: `This article was published in ${year}, which may still be useful but could be outdated depending on the topic.`
+          };
+        }
+
+        return {
+          status: "FAIL",
+          class: "fail",
+          explanation: `This article was published in ${year}, which is too old for most modern academic topics such as science and technology.`
+        };
       }
     },
 
     {
       name: "Relevance",
-      question: "Does this source directly support your research topic?",
+      question: "Does this source support your research topic?",
       evaluate: () => {
-        if (text.includes("study") || text.includes("research")) {
+
+        const topic = document.getElementById("topic").value.toLowerCase();
+
+        if (topic && text.includes(topic)) {
           return {
             status: "PASS",
             class: "pass",
-            explanation: "The source contains indicators of academic or research relevance."
+            explanation: `The article directly references your topic (“${topic}”), indicating strong relevance.`
           };
-        } else if (text.includes("overview") || text.includes("general")) {
+        }
+
+        if (text.includes("study") || text.includes("research")) {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "The source appears general and may only partially address the research question."
-          };
-        } else {
-          return {
-            status: "FAIL",
-            class: "fail",
-            explanation: "No strong indicators of direct relevance to an academic research question were found."
+            explanation: "The article contains academic language, but does not clearly match your specific research topic."
           };
         }
+
+        return {
+          status: "FAIL",
+          class: "fail",
+          explanation: "No clear connection between the article content and the stated research topic was detected."
+        };
       }
     },
 
@@ -158,31 +176,36 @@ function evaluateCRAAP() {
       name: "Authority",
       question: "Who created the source and are they credible?",
       evaluate: () => {
-        if (text.includes(".edu") || text.includes("journal") || text.includes("university")) {
+
+        if (text.includes("university") || text.includes("journal") || text.includes(".edu")) {
           return {
             status: "PASS",
             class: "pass",
-            explanation: "The source is associated with an academic or institutional domain, suggesting strong authority."
+            explanation: "The article references an academic institution or journal, which suggests strong authority."
           };
-        } else if (text.includes("bbc") || text.includes("cnn") || text.includes("news")) {
+        }
+
+        if (text.includes("news") || text.includes("bbc") || text.includes("cnn")) {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "The source is a media outlet, which may be credible but can vary in author expertise."
+            explanation: "The source is a news outlet, which can be credible but may vary in author expertise and depth."
           };
-        } else if (text.includes("blog") || text.includes("medium")) {
+        }
+
+        if (!text.includes("author")) {
           return {
             status: "FAIL",
             class: "fail",
-            explanation: "The source appears to be a blog platform with unclear author credentials."
-          };
-        } else {
-          return {
-            status: "CAUTION",
-            class: "caution",
-            explanation: "No clear author or institutional affiliation was detected."
+            explanation: "No author or creator is mentioned in the text, which significantly weakens authority."
           };
         }
+
+        return {
+          status: "CAUTION",
+          class: "caution",
+          explanation: "Some author or source information is present but not enough detail is provided to fully verify credibility."
+        };
       }
     },
 
@@ -190,25 +213,28 @@ function evaluateCRAAP() {
       name: "Accuracy",
       question: "Is the information supported by evidence?",
       evaluate: () => {
+
         if (text.includes("doi") || text.includes("references") || text.includes("data")) {
           return {
             status: "PASS",
             class: "pass",
-            explanation: "The source references data or citations, suggesting evidence-based content."
+            explanation: "The article includes references or data, suggesting evidence-based claims."
           };
-        } else if (text.includes("said") || text.includes("reported")) {
+        }
+
+        if (text.includes("said") || text.includes("reported")) {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "The source includes reported claims but lacks clear supporting citations."
-          };
-        } else {
-          return {
-            status: "FAIL",
-            class: "fail",
-            explanation: "No evidence or citations were detected to support claims."
+            explanation: "The article contains reported claims but does not clearly show supporting evidence."
           };
         }
+
+        return {
+          status: "FAIL",
+          class: "fail",
+          explanation: "No evidence, citations, or supporting data were found in the article text."
+        };
       }
     },
 
@@ -216,33 +242,39 @@ function evaluateCRAAP() {
       name: "Purpose",
       question: "Why was this source created?",
       evaluate: () => {
-        if (text.includes("advert") || text.includes("buy") || text.includes("sale")) {
+
+        if (text.includes("buy") || text.includes("sale") || text.includes("advert")) {
           return {
             status: "FAIL",
             class: "fail",
-            explanation: "The source appears to have a commercial intent."
+            explanation: "The article appears to have a commercial purpose, suggesting potential bias toward selling or promotion."
           };
-        } else if (text.includes("opinion") || text.includes("editorial")) {
+        }
+
+        if (text.includes("opinion") || text.includes("editorial")) {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "The source contains opinion-based content, which may introduce bias."
+            explanation: "The article appears opinion-based, which may introduce subjective bias."
           };
-        } else if (text.includes("report") || text.includes("inform")) {
+        }
+
+        if (text.includes("report") || text.includes("inform")) {
           return {
             status: "PASS",
             class: "pass",
-            explanation: "The source appears to have an informational purpose."
-          };
-        } else {
-          return {
-            status: "CAUTION",
-            class: "caution",
-            explanation: "The purpose of the source is unclear from available signals."
+            explanation: "The article appears informational in purpose, suggesting an intent to inform rather than persuade."
           };
         }
+
+        return {
+          status: "CAUTION",
+          class: "caution",
+          explanation: "The purpose of the article cannot be clearly determined from the text."
+        };
       }
     }
+
   ];
 
   let html = "";
