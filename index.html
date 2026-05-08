@@ -1,256 +1,179 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRAAP v3.1 System</title>
-
 <style>
-body {
-  font-family: system-ui, Arial;
-  max-width: 1000px;
-  margin: auto;
-  padding: 24px;
-  background: #f5f7fb;
-}
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    max-width: 1050px;
+    margin: auto;
+    padding: 24px;
+    background: linear-gradient(180deg, #f6f8fc 0%, #eef2f7 100%);
+    color: #1f2937;
+  }
 
-h1 { text-align: center; }
+  h1 {
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+  }
 
-.card {
-  background: white;
-  padding: 16px;
-  margin: 14px 0;
-  border-radius: 14px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-}
+  .card {
+    background: white;
+    padding: 18px;
+    margin: 14px 0;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    border: 1px solid #e5e7eb;
+  }
 
-label { font-weight: 600; display:block; margin-top:10px; }
+  label {
+    font-weight: 600;
+    margin-top: 12px;
+    display: block;
+    font-size: 14px;
+  }
 
-input, select, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-}
+  input, select, textarea {
+    width: 100%;
+    padding: 11px 12px;
+    margin-top: 6px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    font-size: 14px;
+    transition: 0.2s;
+  }
 
-textarea { height: 160px; }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  }
 
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 14px;
-  border: none;
-  border-radius: 10px;
-  background: #2563eb;
-  color: white;
-  font-weight: 700;
-}
+  textarea { height: 180px; }
 
-button:hover { background: #1e40af; }
+  button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 16px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 15px;
+    transition: 0.2s;
+  }
 
-/* METADATA */
-.meta {
-  background: #eef2ff;
-  border-left: 6px solid #3b82f6;
-  padding: 14px;
-  border-radius: 12px;
-}
+  button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(37,99,235,0.25);
+  }
 
-/* CRAAP */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 12px;
-}
+  /* =========================
+     METADATA PANEL
+  ========================= */
 
-.craap {
-  background: white;
-  padding: 14px;
-  border-radius: 12px;
-  border-left: 6px solid #ccc;
-}
+  .metadata {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-left: 6px solid #3b82f6;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 14px;
+  }
 
-.pass { border-left-color: #22c55e; }
-.caution { border-left-color: #f59e0b; }
-.fail { border-left-color: #ef4444; }
+  .meta-title {
+    font-weight: 800;
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
 
-.tag {
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  color: white;
-}
+  .suggested {
+    color: #dc2626;
+    font-weight: 700;
+    margin-top: 6px;
+    display: block;
+    font-size: 13px;
+  }
 
-.tag.pass { background:#22c55e; }
-.tag.caution { background:#f59e0b; }
-.tag.fail { background:#ef4444; }
+  /* =========================
+     CRAAP GRID LAYOUT
+  ========================= */
 
-.small { font-size: 12px; color:#6b7280; }
+  #output {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .craap-card {
+    background: white;
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    border: 1px solid #e5e7eb;
+    border-left: 6px solid #cbd5e1;
+    transition: 0.2s;
+  }
+
+  .craap-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .pass { border-left-color: #22c55e; }
+  .caution { border-left-color: #f59e0b; }
+  .fail { border-left-color: #ef4444; }
+
+  .craap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .craap-title {
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .badge.pass { background: #22c55e; }
+  .badge.caution { background: #f59e0b; }
+  .badge.fail { background: #ef4444; }
+
+  .section {
+    margin-top: 10px;
+  }
+
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .text {
+    font-size: 13px;
+    color: #111827;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .evidence-box {
+    margin-top: 8px;
+    background: #f3f4f6;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    border-left: 3px solid #9ca3af;
+    color: #374151;
+  }
 </style>
-</head>
-
-<body>
-
-<h1>CRAAP v3.1 Analyzer</h1>
-
-<div class="card">
-
-<label>Research Topic</label>
-<input id="topic">
-
-<label>Publication Field</label>
-<select id="field">
-  <option value="science">Science</option>
-  <option value="technology">Technology</option>
-  <option value="social">Social Science</option>
-  <option value="humanities">Humanities</option>
-  <option value="news">News</option>
-</select>
-
-<label>Author</label>
-<input id="author">
-
-<label>Publication Date</label>
-<input id="date">
-
-<label>Publisher</label>
-<select id="publisherSelect" onchange="syncPublisher()">
-  <option value="">Select publisher</option>
-  <option value="reuters">Reuters</option>
-  <option value="bbc">BBC</option>
-  <option value="new york times">New York Times</option>
-  <option value="washington post">Washington Post</option>
-  <option value="cnn">CNN</option>
-  <option value="nature">Nature</option>
-  <option value="unknown">Unknown</option>
-</select>
-
-<input id="publisher">
-
-<label>Article Text</label>
-<textarea id="text"></textarea>
-
-<button onclick="runCRAAP()">Evaluate Source</button>
-</div>
-
-<div class="card" id="output"></div>
-
-<script>
-
-/* -------------------------
-   SAFE SYNC
-------------------------- */
-function syncPublisher() {
-  const s = document.getElementById("publisherSelect");
-  const i = document.getElementById("publisher");
-  if (!s || !i) return;
-  i.value = s.value;
-}
-
-/* -------------------------
-   METADATA EXTRACTION
-------------------------- */
-function extractMetadata() {
-
-  const text = document.getElementById("text").value.toLowerCase();
-  const topic = document.getElementById("topic").value.toLowerCase();
-
-  let suggested = "unknown";
-
-  if (text.includes("study") || text.includes("research")) suggested = "science";
-  if (text.includes("software") || text.includes("ai")) suggested = "technology";
-  if (text.includes("economy")) suggested = "social";
-  if (text.includes("history")) suggested = "humanities";
-  if (text.includes("reported")) suggested = "news";
-
-  return {
-    topic,
-    field: document.getElementById("field").value,
-    suggested
-  };
-}
-
-/* -------------------------
-   CRAAP EVALUATION
-------------------------- */
-function runCRAAP() {
-
-  const text = document.getElementById("text").value.toLowerCase();
-  const author = document.getElementById("author").value;
-  const date = document.getElementById("date").value;
-  const publisher = document.getElementById("publisher").value.toLowerCase();
-
-  const meta = extractMetadata();
-
-  const year = (date.match(/\b(19|20)\d{2}\b/) || [])[0];
-  const current = new Date().getFullYear();
-
-  function card(title, status, cls, explanation) {
-    return `
-    <div class="craap ${cls}">
-      <div><b>${title}</b> <span class="tag ${cls}">${status}</span></div>
-      <div class="small">${explanation}</div>
-    </div>`;
-  }
-
-  let html = `
-  <div class="meta">
-    <b>Metadata Panel</b><br><br>
-    Topic: ${meta.topic || "Not provided"}<br>
-    Field: ${meta.field}<br>
-    Suggested Field: ${meta.suggested}<br>
-    Author: ${author || "Not provided"}<br>
-    Publisher: ${publisher || "Not provided"}<br>
-    Date: ${date || "Not provided"}
-  </div>
-
-  <div class="grid">
-  `;
-
-  /* Currency */
-  if (!year) {
-    html += card("Currency","CAUTION","caution","No valid year detected.");
-  } else {
-    const age = current - parseInt(year);
-    html += card("Currency",
-      age <= 7 ? "PASS":"FAIL",
-      age <= 7 ? "pass":"fail",
-      `Published ${age} years ago.`);
-  }
-
-  /* Authority */
-  html += card("Authority",
-    author ? "PASS":"CAUTION",
-    author ? "pass":"caution",
-    author ? `Author: ${author}` : "No author provided.");
-
-  /* Relevance */
-  html += card("Relevance",
-    text.includes(meta.topic) ? "PASS":"FAIL",
-    text.includes(meta.topic) ? "pass":"fail",
-    text.includes(meta.topic)
-      ? "Direct match with topic"
-      : "No clear connection");
-
-  /* Accuracy */
-  html += card("Accuracy",
-    text.includes("data") || text.includes("study") ? "PASS":"FAIL",
-    text.includes("data") || text.includes("study") ? "pass":"fail",
-    "Evidence-based language check");
-
-  /* Purpose */
-  html += card("Purpose",
-    text.includes("buy") ? "FAIL":"PASS",
-    text.includes("buy") ? "fail":"pass",
-    "Checks for commercial intent");
-
-  html += "</div>";
-
-  document.getElementById("output").innerHTML = html;
-}
-
-</script>
-
-</body>
-</html>
