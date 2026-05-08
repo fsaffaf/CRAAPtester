@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CRAAP Tester</title>
+<title>CRAAP Tester (Explained)</title>
 
 <style>
   body {
@@ -25,9 +24,13 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
 
-  label { font-weight: bold; display: block; margin-top: 10px; }
+  label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+  }
 
-  select, input {
+  input, select {
     width: 100%;
     padding: 8px;
     margin-top: 5px;
@@ -44,7 +47,9 @@
     cursor: pointer;
   }
 
-  button:hover { background: #1b4fb3; }
+  button:hover {
+    background: #1b4fb3;
+  }
 
   .score {
     font-size: 20px;
@@ -55,16 +60,33 @@
   .pass { color: green; }
   .fail { color: red; }
   .borderline { color: orange; }
+
+  .breakdown {
+    margin-top: 20px;
+  }
+
+  .item {
+    background: white;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .small {
+    font-size: 0.9em;
+    color: #444;
+  }
 </style>
 </head>
 
 <body>
 
-<h1>CRAAP Test Evaluator</h1>
+<h1>CRAAP Test Evaluator (Explained)</h1>
 
 <div class="card">
-  <label>Source Name / URL</label>
-  <input id="source" placeholder="Paste URL or article title"/>
+  <label>Source (URL or Title)</label>
+  <input id="source" placeholder="Paste a URL or article title"/>
 
   <label>Field</label>
   <select id="field">
@@ -99,6 +121,8 @@
   <div id="result" class="score"></div>
 </div>
 
+<div id="breakdown" class="breakdown"></div>
+
 <script>
 function getWeights(field) {
   const profiles = {
@@ -111,8 +135,57 @@ function getWeights(field) {
   return profiles[field];
 }
 
+function explain(label, score) {
+  const map = {
+    Currency: [
+      "Very recent or frequently updated.",
+      "Mostly recent with minor lag.",
+      "Somewhat dated but usable.",
+      "Outdated for fast-moving topics.",
+      "Very outdated or irrelevant timing."
+    ],
+    Relevance: [
+      "Directly answers the research question.",
+      "Mostly relevant with small gaps.",
+      "Moderately relevant.",
+      "Weak connection to topic.",
+      "Not relevant."
+    ],
+    Authority: [
+      "Highly credible expert or institution.",
+      "Trusted source with minor uncertainty.",
+      "Some authority but unclear credentials.",
+      "Weak or questionable authority.",
+      "No identifiable authority."
+    ],
+    Accuracy: [
+      "Well-supported with strong evidence.",
+      "Mostly accurate.",
+      "Some questionable claims.",
+      "Weak or poorly supported.",
+      "Inaccurate or unsupported."
+    ],
+    Purpose: [
+      "Neutral, informative purpose.",
+      "Mostly objective.",
+      "Mixed intent.",
+      "Some bias or persuasion.",
+      "Highly biased or promotional."
+    ]
+  };
+
+  return map[label][score - 1];
+}
+
+function level(score) {
+  if (score >= 4) return "Strong";
+  if (score >= 3) return "Moderate";
+  if (score >= 2) return "Weak";
+  return "Poor";
+}
+
 function calculate() {
-  const field = document.getElementById("field").value;
+  const labels = ["Currency", "Relevance", "Authority", "Accuracy", "Purpose"];
 
   const scores = [
     +document.getElementById("currency").value,
@@ -122,14 +195,26 @@ function calculate() {
     +document.getElementById("purpose").value
   ];
 
+  const field = document.getElementById("field").value;
   const weights = getWeights(field);
 
   let total = 0;
-  for (let i = 0; i < scores.length; i++) {
-    total += scores[i] * weights[i];
-  }
 
-  const result = document.getElementById("result");
+  let html = "<h2>CRAAP Breakdown</h2>";
+
+  for (let i = 0; i < labels.length; i++) {
+    const contribution = scores[i] * weights[i];
+    total += contribution;
+
+    html += `
+      <div class="item">
+        <h3>${labels[i]} — ${scores[i]}/5</h3>
+        <p><strong>Level:</strong> ${level(scores[i])}</p>
+        <p><strong>Why this score:</strong> ${explain(labels[i], scores[i])}</p>
+        <p class="small"><strong>Weighted contribution:</strong> ${contribution.toFixed(2)}</p>
+      </div>
+    `;
+  }
 
   let status = "";
   let cls = "";
@@ -145,11 +230,11 @@ function calculate() {
     cls = "fail";
   }
 
-  result.className = "score " + cls;
-  result.innerHTML = `
-    Final Score: ${total.toFixed(2)} / 5<br/>
-    Result: ${status}
-  `;
+  document.getElementById("result").className = "score " + cls;
+  document.getElementById("result").innerHTML =
+    `Final Score: ${total.toFixed(2)} / 5 — ${status}`;
+
+  document.getElementById("breakdown").innerHTML = html;
 }
 </script>
 
