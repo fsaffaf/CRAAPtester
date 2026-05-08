@@ -1,244 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CRAAP v3.0 Analyzer</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAAP v3.1 System</title>
 
 <style>
-  body {
-    font-family: system-ui, Arial, sans-serif;
-    max-width: 1000px;
-    margin: auto;
-    padding: 24px;
-    background: #f4f6fb;
-    color: #111827;
-  }
+body {
+  font-family: system-ui, Arial;
+  max-width: 1000px;
+  margin: auto;
+  padding: 24px;
+  background: #f5f7fb;
+}
 
-  h1 {
-    text-align: center;
-    font-weight: 800;
-  }
+h1 { text-align: center; }
 
-  .card {
-    background: white;
-    padding: 16px;
-    margin: 14px 0;
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  }
+.card {
+  background: white;
+  padding: 16px;
+  margin: 14px 0;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
 
-  label {
-    font-weight: 600;
-    margin-top: 10px;
-    display: block;
-  }
+label { font-weight: 600; display:block; margin-top:10px; }
 
-  input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 6px;
-    border-radius: 10px;
-    border: 1px solid #d1d5db;
-  }
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+}
 
-  textarea { height: 160px; }
+textarea { height: 160px; }
 
-  button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 14px;
-    background: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: 700;
-    cursor: pointer;
-  }
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+}
 
-  button:hover {
-    background: #1e40af;
-  }
+button:hover { background: #1e40af; }
 
-  .meta {
-    background: #eef2ff;
-    border-left: 6px solid #3b82f6;
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-  }
+/* METADATA */
+.meta {
+  background: #eef2ff;
+  border-left: 6px solid #3b82f6;
+  padding: 14px;
+  border-radius: 12px;
+}
 
-  .craap-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 12px;
-  }
+/* CRAAP */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
 
-  .craap {
-    background: white;
-    padding: 14px;
-    border-radius: 12px;
-    border-left: 6px solid #ccc;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-  }
+.craap {
+  background: white;
+  padding: 14px;
+  border-radius: 12px;
+  border-left: 6px solid #ccc;
+}
 
-  .pass { border-left-color: #22c55e; }
-  .caution { border-left-color: #f59e0b; }
-  .fail { border-left-color: #ef4444; }
+.pass { border-left-color: #22c55e; }
+.caution { border-left-color: #f59e0b; }
+.fail { border-left-color: #ef4444; }
 
-  .tag {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 999px;
-    color: white;
-  }
+.tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: white;
+}
 
-  .tag.pass { background: #22c55e; }
-  .tag.caution { background: #f59e0b; }
-  .tag.fail { background: #ef4444; }
+.tag.pass { background:#22c55e; }
+.tag.caution { background:#f59e0b; }
+.tag.fail { background:#ef4444; }
 
-  .title {
-    font-weight: 800;
-    margin-bottom: 6px;
-  }
-
-  .small {
-    font-size: 12px;
-    color: #6b7280;
-  }
+.small { font-size: 12px; color:#6b7280; }
 </style>
 </head>
 
 <body>
 
-<h1>CRAAP v3.0 Analyzer</h1>
+<h1>CRAAP v3.1 Analyzer</h1>
 
 <div class="card">
 
-  <label>Research Topic</label>
-  <input id="topic">
+<label>Research Topic</label>
+<input id="topic">
 
-  <label>Publication Field</label>
-  <select id="field">
-    <option value="science">Science / Medicine</option>
-    <option value="technology">Technology</option>
-    <option value="social">Social Science</option>
-    <option value="humanities">Humanities</option>
-    <option value="news">News</option>
-  </select>
+<label>Publication Field</label>
+<select id="field">
+  <option value="science">Science</option>
+  <option value="technology">Technology</option>
+  <option value="social">Social Science</option>
+  <option value="humanities">Humanities</option>
+  <option value="news">News</option>
+</select>
 
-  <label>Author</label>
-  <input id="author">
+<label>Author</label>
+<input id="author">
 
-  <label>Publication Date</label>
-  <input id="date">
+<label>Publication Date</label>
+<input id="date">
 
-  <label>Publisher</label>
-  <select id="publisherSelect" onchange="syncPublisher()">
-    <option value="">Select publisher</option>
-    <option value="reuters">Reuters</option>
-    <option value="bbc">BBC</option>
-    <option value="new york times">New York Times</option>
-    <option value="washington post">Washington Post</option>
-    <option value="cnn">CNN</option>
-    <option value="nature">Nature</option>
-    <option value="unknown">Unknown</option>
-  </select>
+<label>Publisher</label>
+<select id="publisherSelect" onchange="syncPublisher()">
+  <option value="">Select publisher</option>
+  <option value="reuters">Reuters</option>
+  <option value="bbc">BBC</option>
+  <option value="new york times">New York Times</option>
+  <option value="washington post">Washington Post</option>
+  <option value="cnn">CNN</option>
+  <option value="nature">Nature</option>
+  <option value="unknown">Unknown</option>
+</select>
 
-  <input id="publisher" placeholder="Or type publisher">
+<input id="publisher">
 
-  <label>Article Text</label>
-  <textarea id="text"></textarea>
+<label>Article Text</label>
+<textarea id="text"></textarea>
 
-  <button onclick="evaluateCRAAP()">Evaluate Source</button>
+<button onclick="runCRAAP()">Evaluate Source</button>
 </div>
 
-<div class="card">
-  <h2>Results</h2>
-  <div id="output"></div>
-</div>
+<div class="card" id="output"></div>
 
 <script>
 
-/* SAFE SYNC */
+/* -------------------------
+   SAFE SYNC
+------------------------- */
 function syncPublisher() {
-  const sel = document.getElementById("publisherSelect");
-  const input = document.getElementById("publisher");
-  if (!sel || !input) return;
-  input.value = sel.value;
+  const s = document.getElementById("publisherSelect");
+  const i = document.getElementById("publisher");
+  if (!s || !i) return;
+  i.value = s.value;
 }
 
-/* SAFE TEXT CHECK */
-function has(text, arr) {
-  return arr.some(k => text.includes(k));
+/* -------------------------
+   METADATA EXTRACTION
+------------------------- */
+function extractMetadata() {
+
+  const text = document.getElementById("text").value.toLowerCase();
+  const topic = document.getElementById("topic").value.toLowerCase();
+
+  let suggested = "unknown";
+
+  if (text.includes("study") || text.includes("research")) suggested = "science";
+  if (text.includes("software") || text.includes("ai")) suggested = "technology";
+  if (text.includes("economy")) suggested = "social";
+  if (text.includes("history")) suggested = "humanities";
+  if (text.includes("reported")) suggested = "news";
+
+  return {
+    topic,
+    field: document.getElementById("field").value,
+    suggested
+  };
 }
 
-/* MAIN FUNCTION */
-function evaluateCRAAP() {
+/* -------------------------
+   CRAAP EVALUATION
+------------------------- */
+function runCRAAP() {
 
-  const text = (document.getElementById("text")?.value || "").toLowerCase();
-  const topic = (document.getElementById("topic")?.value || "").toLowerCase();
-  const field = document.getElementById("field")?.value || "";
+  const text = document.getElementById("text").value.toLowerCase();
+  const author = document.getElementById("author").value;
+  const date = document.getElementById("date").value;
+  const publisher = document.getElementById("publisher").value.toLowerCase();
 
-  const author = document.getElementById("author")?.value || "";
-  const date = document.getElementById("date")?.value || "";
-  const publisher = (document.getElementById("publisher")?.value || "").toLowerCase();
+  const meta = extractMetadata();
 
   const year = (date.match(/\b(19|20)\d{2}\b/) || [])[0];
-  const currentYear = new Date().getFullYear();
+  const current = new Date().getFullYear();
 
-  function result(name, status, cls, explanation) {
+  function card(title, status, cls, explanation) {
     return `
-      <div class="craap ${cls}">
-        <div class="title">${name} <span class="tag ${cls}">${status}</span></div>
-        <div>${explanation}</div>
-      </div>
-    `;
+    <div class="craap ${cls}">
+      <div><b>${title}</b> <span class="tag ${cls}">${status}</span></div>
+      <div class="small">${explanation}</div>
+    </div>`;
   }
 
-  let html = "";
+  let html = `
+  <div class="meta">
+    <b>Metadata Panel</b><br><br>
+    Topic: ${meta.topic || "Not provided"}<br>
+    Field: ${meta.field}<br>
+    Suggested Field: ${meta.suggested}<br>
+    Author: ${author || "Not provided"}<br>
+    Publisher: ${publisher || "Not provided"}<br>
+    Date: ${date || "Not provided"}
+  </div>
 
-  /* CURRENCY */
+  <div class="grid">
+  `;
+
+  /* Currency */
   if (!year) {
-    html += result("Currency", "CAUTION", "caution",
-      "No publication year provided.");
+    html += card("Currency","CAUTION","caution","No valid year detected.");
   } else {
-    const age = currentYear - parseInt(year);
-    html += result("Currency",
-      age <= 7 ? "PASS" : "FAIL",
-      age <= 7 ? "pass" : "fail",
-      `Published in ${year}, ${age} years ago.`);
+    const age = current - parseInt(year);
+    html += card("Currency",
+      age <= 7 ? "PASS":"FAIL",
+      age <= 7 ? "pass":"fail",
+      `Published ${age} years ago.`);
   }
 
-  /* AUTHORITY */
-  if (!author) {
-    html += result("Authority", "CAUTION", "caution",
-      "No author provided.");
-  } else {
-    html += result("Authority", "PASS", "pass",
-      `Author listed: ${author}.`);
-  }
+  /* Authority */
+  html += card("Authority",
+    author ? "PASS":"CAUTION",
+    author ? "pass":"caution",
+    author ? `Author: ${author}` : "No author provided.");
 
-  /* RELEVANCE */
-  html += result("Relevance",
-    text.includes(topic) ? "PASS" : "FAIL",
-    text.includes(topic) ? "pass" : "fail",
-    text.includes(topic)
-      ? "Direct connection to topic found."
-      : "No clear link to topic.");
+  /* Relevance */
+  html += card("Relevance",
+    text.includes(meta.topic) ? "PASS":"FAIL",
+    text.includes(meta.topic) ? "pass":"fail",
+    text.includes(meta.topic)
+      ? "Direct match with topic"
+      : "No clear connection");
 
-  /* ACCURACY */
-  html += result("Accuracy",
-    has(text, ["study","data","research"]) ? "PASS" : "FAIL",
-    has(text, ["study","data","research"]) ? "pass" : "fail",
-    "Checks for evidence-based language.");
+  /* Accuracy */
+  html += card("Accuracy",
+    text.includes("data") || text.includes("study") ? "PASS":"FAIL",
+    text.includes("data") || text.includes("study") ? "pass":"fail",
+    "Evidence-based language check");
 
-  /* PURPOSE */
-  html += result("Purpose",
-    has(text, ["buy","sale","advert"]) ? "FAIL" : "PASS",
-    has(text, ["buy","sale","advert"]) ? "fail" : "pass",
-    "Detects commercial intent.");
+  /* Purpose */
+  html += card("Purpose",
+    text.includes("buy") ? "FAIL":"PASS",
+    text.includes("buy") ? "fail":"pass",
+    "Checks for commercial intent");
+
+  html += "</div>";
 
   document.getElementById("output").innerHTML = html;
 }
