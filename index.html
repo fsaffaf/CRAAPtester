@@ -1,1 +1,157 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CRAAP Tester</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+    background: #f7f7f7;
+  }
+
+  h1 { text-align: center; }
+
+  .card {
+    background: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  label { font-weight: bold; display: block; margin-top: 10px; }
+
+  select, input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+  }
+
+  button {
+    padding: 10px;
+    margin-top: 15px;
+    width: 100%;
+    background: #2d6cdf;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button:hover { background: #1b4fb3; }
+
+  .score {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  .pass { color: green; }
+  .fail { color: red; }
+  .borderline { color: orange; }
+</style>
+</head>
+
+<body>
+
+<h1>CRAAP Test Evaluator</h1>
+
+<div class="card">
+  <label>Source Name / URL</label>
+  <input id="source" placeholder="Paste URL or article title"/>
+
+  <label>Field</label>
+  <select id="field">
+    <option value="stem">STEM / Science</option>
+    <option value="humanities">Humanities</option>
+    <option value="news">News / Journalism</option>
+    <option value="medicine">Medicine / Health</option>
+    <option value="general">General</option>
+  </select>
+</div>
+
+<div class="card">
+  <h3>CRAAP Scores (1–5)</h3>
+
+  <label>Currency</label>
+  <input type="number" id="currency" min="1" max="5" value="3"/>
+
+  <label>Relevance</label>
+  <input type="number" id="relevance" min="1" max="5" value="3"/>
+
+  <label>Authority</label>
+  <input type="number" id="authority" min="1" max="5" value="3"/>
+
+  <label>Accuracy</label>
+  <input type="number" id="accuracy" min="1" max="5" value="3"/>
+
+  <label>Purpose</label>
+  <input type="number" id="purpose" min="1" max="5" value="3"/>
+
+  <button onclick="calculate()">Run CRAAP Test</button>
+
+  <div id="result" class="score"></div>
+</div>
+
+<script>
+function getWeights(field) {
+  const profiles = {
+    stem:      [0.30, 0.15, 0.20, 0.30, 0.05],
+    humanities:[0.15, 0.25, 0.20, 0.20, 0.20],
+    news:      [0.35, 0.10, 0.25, 0.20, 0.10],
+    medicine:  [0.20, 0.10, 0.25, 0.35, 0.10],
+    general:   [0.20, 0.20, 0.20, 0.20, 0.20]
+  };
+  return profiles[field];
+}
+
+function calculate() {
+  const field = document.getElementById("field").value;
+
+  const scores = [
+    +document.getElementById("currency").value,
+    +document.getElementById("relevance").value,
+    +document.getElementById("authority").value,
+    +document.getElementById("accuracy").value,
+    +document.getElementById("purpose").value
+  ];
+
+  const weights = getWeights(field);
+
+  let total = 0;
+  for (let i = 0; i < scores.length; i++) {
+    total += scores[i] * weights[i];
+  }
+
+  const result = document.getElementById("result");
+
+  let status = "";
+  let cls = "";
+
+  if (total >= 3.5) {
+    status = "PASS ✔";
+    cls = "pass";
+  } else if (total >= 2.5) {
+    status = "BORDERLINE ⚠";
+    cls = "borderline";
+  } else {
+    status = "FAIL ✖";
+    cls = "fail";
+  }
+
+  result.className = "score " + cls;
+  result.innerHTML = `
+    Final Score: ${total.toFixed(2)} / 5<br/>
+    Result: ${status}
+  `;
+}
+</script>
+
+</body>
+</html>
