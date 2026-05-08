@@ -1,179 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CRAAP v3.0 Analyzer</title>
+
 <style>
   body {
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    max-width: 1050px;
+    font-family: system-ui, Arial, sans-serif;
+    max-width: 1000px;
     margin: auto;
     padding: 24px;
-    background: linear-gradient(180deg, #f6f8fc 0%, #eef2f7 100%);
-    color: #1f2937;
+    background: #f4f6fb;
+    color: #111827;
   }
 
   h1 {
     text-align: center;
     font-weight: 800;
-    letter-spacing: -0.5px;
-    margin-bottom: 20px;
   }
 
   .card {
     background: white;
-    padding: 18px;
+    padding: 16px;
     margin: 14px 0;
     border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-    border: 1px solid #e5e7eb;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
   }
 
   label {
     font-weight: 600;
-    margin-top: 12px;
+    margin-top: 10px;
     display: block;
-    font-size: 14px;
   }
 
   input, select, textarea {
     width: 100%;
-    padding: 11px 12px;
+    padding: 10px;
     margin-top: 6px;
     border-radius: 10px;
     border: 1px solid #d1d5db;
-    background: #fff;
-    font-size: 14px;
-    transition: 0.2s;
   }
 
-  input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
-  }
-
-  textarea { height: 180px; }
+  textarea { height: 160px; }
 
   button {
     width: 100%;
-    padding: 13px;
-    margin-top: 16px;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    padding: 12px;
+    margin-top: 14px;
+    background: #2563eb;
     color: white;
     border: none;
-    border-radius: 12px;
-    cursor: pointer;
+    border-radius: 10px;
     font-weight: 700;
-    font-size: 15px;
-    transition: 0.2s;
+    cursor: pointer;
   }
 
   button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(37,99,235,0.25);
+    background: #1e40af;
   }
 
-  /* =========================
-     METADATA PANEL
-  ========================= */
-
-  .metadata {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+  .meta {
+    background: #eef2ff;
     border-left: 6px solid #3b82f6;
-    padding: 14px;
-    border-radius: 12px;
-    margin-bottom: 14px;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 12px;
   }
 
-  .meta-title {
-    font-weight: 800;
-    margin-bottom: 8px;
-    font-size: 15px;
-  }
-
-  .suggested {
-    color: #dc2626;
-    font-weight: 700;
-    margin-top: 6px;
-    display: block;
-    font-size: 13px;
-  }
-
-  /* =========================
-     CRAAP GRID LAYOUT
-  ========================= */
-
-  #output {
+  .craap-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 12px;
   }
 
-  .craap-card {
+  .craap {
     background: white;
-    border-radius: 14px;
     padding: 14px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-    border: 1px solid #e5e7eb;
-    border-left: 6px solid #cbd5e1;
-    transition: 0.2s;
-  }
-
-  .craap-card:hover {
-    transform: translateY(-2px);
+    border-radius: 12px;
+    border-left: 6px solid #ccc;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
   }
 
   .pass { border-left-color: #22c55e; }
   .caution { border-left-color: #f59e0b; }
   .fail { border-left-color: #ef4444; }
 
-  .craap-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .craap-title {
-    font-size: 15px;
-    font-weight: 800;
-  }
-
-  .badge {
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
+  .tag {
+    font-size: 12px;
     font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
     color: white;
   }
 
-  .badge.pass { background: #22c55e; }
-  .badge.caution { background: #f59e0b; }
-  .badge.fail { background: #ef4444; }
+  .tag.pass { background: #22c55e; }
+  .tag.caution { background: #f59e0b; }
+  .tag.fail { background: #ef4444; }
 
-  .section {
-    margin-top: 10px;
+  .title {
+    font-weight: 800;
+    margin-bottom: 6px;
   }
 
-  .label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .text {
-    font-size: 13px;
-    color: #111827;
-    margin-top: 4px;
-    line-height: 1.4;
-  }
-
-  .evidence-box {
-    margin-top: 8px;
-    background: #f3f4f6;
-    padding: 10px;
-    border-radius: 10px;
+  .small {
     font-size: 12px;
-    border-left: 3px solid #9ca3af;
-    color: #374151;
+    color: #6b7280;
   }
 </style>
+</head>
+
+<body>
+
+<h1>CRAAP v3.0 Analyzer</h1>
+
+<div class="card">
+
+  <label>Research Topic</label>
+  <input id="topic">
+
+  <label>Publication Field</label>
+  <select id="field">
+    <option value="science">Science / Medicine</option>
+    <option value="technology">Technology</option>
+    <option value="social">Social Science</option>
+    <option value="humanities">Humanities</option>
+    <option value="news">News</option>
+  </select>
+
+  <label>Author</label>
+  <input id="author">
+
+  <label>Publication Date</label>
+  <input id="date">
+
+  <label>Publisher</label>
+  <select id="publisherSelect" onchange="syncPublisher()">
+    <option value="">Select publisher</option>
+    <option value="reuters">Reuters</option>
+    <option value="bbc">BBC</option>
+    <option value="new york times">New York Times</option>
+    <option value="washington post">Washington Post</option>
+    <option value="cnn">CNN</option>
+    <option value="nature">Nature</option>
+    <option value="unknown">Unknown</option>
+  </select>
+
+  <input id="publisher" placeholder="Or type publisher">
+
+  <label>Article Text</label>
+  <textarea id="text"></textarea>
+
+  <button onclick="evaluateCRAAP()">Evaluate Source</button>
+</div>
+
+<div class="card">
+  <h2>Results</h2>
+  <div id="output"></div>
+</div>
+
+<script>
+
+/* SAFE SYNC */
+function syncPublisher() {
+  const sel = document.getElementById("publisherSelect");
+  const input = document.getElementById("publisher");
+  if (!sel || !input) return;
+  input.value = sel.value;
+}
+
+/* SAFE TEXT CHECK */
+function has(text, arr) {
+  return arr.some(k => text.includes(k));
+}
+
+/* MAIN FUNCTION */
+function evaluateCRAAP() {
+
+  const text = (document.getElementById("text")?.value || "").toLowerCase();
+  const topic = (document.getElementById("topic")?.value || "").toLowerCase();
+  const field = document.getElementById("field")?.value || "";
+
+  const author = document.getElementById("author")?.value || "";
+  const date = document.getElementById("date")?.value || "";
+  const publisher = (document.getElementById("publisher")?.value || "").toLowerCase();
+
+  const year = (date.match(/\b(19|20)\d{2}\b/) || [])[0];
+  const currentYear = new Date().getFullYear();
+
+  function result(name, status, cls, explanation) {
+    return `
+      <div class="craap ${cls}">
+        <div class="title">${name} <span class="tag ${cls}">${status}</span></div>
+        <div>${explanation}</div>
+      </div>
+    `;
+  }
+
+  let html = "";
+
+  /* CURRENCY */
+  if (!year) {
+    html += result("Currency", "CAUTION", "caution",
+      "No publication year provided.");
+  } else {
+    const age = currentYear - parseInt(year);
+    html += result("Currency",
+      age <= 7 ? "PASS" : "FAIL",
+      age <= 7 ? "pass" : "fail",
+      `Published in ${year}, ${age} years ago.`);
+  }
+
+  /* AUTHORITY */
+  if (!author) {
+    html += result("Authority", "CAUTION", "caution",
+      "No author provided.");
+  } else {
+    html += result("Authority", "PASS", "pass",
+      `Author listed: ${author}.`);
+  }
+
+  /* RELEVANCE */
+  html += result("Relevance",
+    text.includes(topic) ? "PASS" : "FAIL",
+    text.includes(topic) ? "pass" : "fail",
+    text.includes(topic)
+      ? "Direct connection to topic found."
+      : "No clear link to topic.");
+
+  /* ACCURACY */
+  html += result("Accuracy",
+    has(text, ["study","data","research"]) ? "PASS" : "FAIL",
+    has(text, ["study","data","research"]) ? "pass" : "fail",
+    "Checks for evidence-based language.");
+
+  /* PURPOSE */
+  html += result("Purpose",
+    has(text, ["buy","sale","advert"]) ? "FAIL" : "PASS",
+    has(text, ["buy","sale","advert"]) ? "fail" : "pass",
+    "Detects commercial intent.");
+
+  document.getElementById("output").innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
