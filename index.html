@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CRAAP Source Evaluation Tool</title>
+<title>CRAAP Tool (Clean Build)</title>
 
 <style>
   body {
@@ -11,183 +11,164 @@
     max-width: 900px;
     margin: auto;
     padding: 20px;
-    background: #f7f7f7;
+    background: #f4f4f4;
   }
 
-  h1 { text-align: center; }
+  h1 {
+    text-align: center;
+  }
 
   .card {
     background: white;
     padding: 15px;
-    margin: 10px 0;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin: 12px 0;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
-  .row {
-    display: flex;
-    gap: 15px;
-    margin-top: 10px;
-    align-items: center;
-  }
-
-  .label {
-    width: 220px;
+  label {
     font-weight: bold;
+    display: block;
+    margin-top: 10px;
   }
 
-  .input {
-    flex: 1;
-  }
-
-  input, select, textarea {
+  input, select {
     width: 100%;
     padding: 8px;
+    margin-top: 5px;
   }
 
-  textarea { min-height: 80px; }
-
   button {
-    padding: 10px;
     margin-top: 15px;
     width: 100%;
+    padding: 10px;
     background: #2d6cdf;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
   }
 
-  button:hover { background: #1b4fb3; }
-
-  .box {
-    background: white;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  button:hover {
+    background: #1b4fb3;
   }
 
-  .pass { color: green; font-weight: bold; }
-  .caution { color: orange; font-weight: bold; }
-  .fail { color: red; font-weight: bold; }
+  .box {
+    background: #fff;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border-left: 5px solid #ccc;
+  }
+
+  .pass { border-left-color: green; color: green; font-weight: bold; }
+  .caution { border-left-color: orange; color: orange; font-weight: bold; }
+  .fail { border-left-color: red; color: red; font-weight: bold; }
 
   .question {
     font-style: italic;
-    color: #333;
-    margin-bottom: 6px;
+    color: #444;
+    margin: 5px 0;
   }
 
-  .small { font-size: 0.9em; color: #555; }
+  .small {
+    font-size: 0.9em;
+    color: #555;
+  }
 </style>
 </head>
 
 <body>
 
-<h1>CRAAP Source Evaluation Tool</h1>
+<h1>CRAAP Evaluation Tool</h1>
 
 <div class="card">
+  <label>Your Research Topic</label>
+  <input id="topic" placeholder="What are you researching?" />
 
-  <div class="row">
-    <div class="label">Your Research Topic</div>
-    <div class="input"><input id="topic" /></div>
-  </div>
+  <label>Source Title or URL</label>
+  <input id="source" placeholder="Paste article title or URL" />
 
-  <div class="row">
-    <div class="label">Article URL</div>
-    <div class="input"><input id="source" /></div>
-  </div>
-
-  <div class="row">
-    <div class="label">Selected Field</div>
-    <div class="input">
-      <select id="field">
-        <option value="stem">STEM / Science</option>
-        <option value="medicine">Medicine / Health</option>
-        <option value="news">News / Journalism</option>
-        <option value="humanities">Humanities</option>
-        <option value="general">General</option>
-      </select>
-    </div>
-  </div>
-
-  <button onclick="evaluate()">Evaluate Source</button>
+  <button onclick="evaluateCRAAP()">Evaluate Source</button>
 </div>
 
 <div class="card">
-  <h3>CRAAP Evaluation</h3>
-  <div id="result">
-    <div class="box small">Click “Evaluate Source” to see results.</div>
+  <h2>CRAAP Results</h2>
+  <div id="output">
+    <div class="box">Click “Evaluate Source” to begin.</div>
   </div>
 </div>
 
 <script>
-function classify(score) {
+function getStatus(score) {
   if (score >= 4) {
     return {
-      status: "PASS",
+      label: "PASS",
       class: "pass",
-      explanation: "Strong evidence of reliability based on this criterion."
+      explanation: "Strong evidence of reliability for this category."
     };
   }
   if (score === 3) {
     return {
-      status: "CAUTION",
+      label: "CAUTION",
       class: "caution",
-      explanation: "Moderate reliability; may require additional verification."
+      explanation: "Moderate reliability — check additional sources."
     };
   }
   return {
-    status: "FAIL",
+    label: "FAIL",
     class: "fail",
-    explanation: "Weak reliability for this criterion."
+    explanation: "Low reliability for this category."
   };
 }
 
-function evaluate() {
+function evaluateCRAAP() {
 
-  const labels = [
-    "Currency",
-    "Relevance",
-    "Authority",
-    "Accuracy",
-    "Purpose"
+  const categories = [
+    {
+      name: "Currency",
+      question: "Is the information up to date?"
+    },
+    {
+      name: "Relevance",
+      question: "Does this source answer your research question?"
+    },
+    {
+      name: "Authority",
+      question: "Who is the author and are they credible?"
+    },
+    {
+      name: "Accuracy",
+      question: "Is the information supported by evidence?"
+    },
+    {
+      name: "Purpose",
+      question: "Why was this source created?"
+    }
   ];
-
-  const questions = {
-    Currency: "When was this information published or last updated?",
-    Relevance: "Does this source directly answer your research question?",
-    Authority: "Who is the author and what are their credentials?",
-    Accuracy: "Is the information supported by evidence?",
-    Purpose: "Why was this source created?"
-  };
-
-  const scores = [
-    3, 3, 3, 3, 3
-  ]; // default safe values so output NEVER breaks
 
   let html = "";
 
-  for (let i = 0; i < labels.length; i++) {
-    const label = labels[i];
-    const score = scores[i];
-    const result = classify(score);
+  for (let i = 0; i < categories.length; i++) {
+
+    // For now we simulate scores (we’ll upgrade this next step)
+    let score = 3;
+
+    const result = getStatus(score);
 
     html += `
-      <div class="box">
-        <p><strong>${label}</strong></p>
-        <p class="question">${questions[label]}</p>
+      <div class="box ${result.class}">
+        <h3>${categories[i].name}</h3>
+        <p class="question">${categories[i].question}</p>
 
-        <p>Score: <strong>${score}/5</strong></p>
-
-        <p>Status: <span class="${result.class}">${result.status}</span></p>
-
+        <p>Score: ${score}/5</p>
+        <p>Status: ${result.label}</p>
         <p class="small">${result.explanation}</p>
       </div>
     `;
   }
 
-  document.getElementById("result").innerHTML = html;
+  document.getElementById("output").innerHTML = html;
 }
 </script>
 
