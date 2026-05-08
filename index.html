@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CRAAP Text Analyzer</title>
+<title>CRAAP Field-Aware Analyzer</title>
 
 <style>
   body {
@@ -24,12 +24,20 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
-  textarea {
+  label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+  }
+
+  input, select, textarea {
     width: 100%;
-    height: 180px;
     padding: 10px;
     margin-top: 5px;
-    font-family: Arial;
+  }
+
+  textarea {
+    height: 180px;
   }
 
   button {
@@ -53,33 +61,43 @@
     border-left: 6px solid #ccc;
   }
 
-  .pass { border-left-color: green; color: green; font-weight: bold; }
-  .caution { border-left-color: orange; color: orange; font-weight: bold; }
-  .fail { border-left-color: red; color: red; font-weight: bold; }
+  .pass { border-left-color: green; color: green; }
+  .caution { border-left-color: orange; color: orange; }
+  .fail { border-left-color: red; color: red; }
 
   .question {
     font-style: italic;
     color: #444;
-    margin: 5px 0;
   }
 
   .small {
     font-size: 0.9em;
     color: #555;
+    margin-top: 6px;
   }
 </style>
 </head>
 
 <body>
 
-<h1>CRAAP Text Analyzer</h1>
+<h1>CRAAP Field-Aware Analyzer</h1>
 
 <div class="card">
+
   <label>Your Research Topic</label>
-  <input id="topic" placeholder="What are you researching?" />
+  <input id="topic" placeholder="e.g., climate change, AI, civil rights..." />
+
+  <label>Field of Study</label>
+  <select id="field">
+    <option value="science">Science / Medicine</option>
+    <option value="technology">Technology</option>
+    <option value="social">Social Science</option>
+    <option value="humanities">Humanities</option>
+    <option value="news">News / Journalism</option>
+  </select>
 
   <label>Paste Full Article Text</label>
-  <textarea id="source" placeholder="Paste the full article here..."></textarea>
+  <textarea id="source" placeholder="Paste full article text here..."></textarea>
 
   <button onclick="evaluateCRAAP()">Evaluate Source</button>
 </div>
@@ -90,69 +108,100 @@
 </div>
 
 <script>
+
+/* -------------------------
+   FIELD RULES (CRITICAL)
+-------------------------- */
+
+function getCurrencyRule(field) {
+  switch(field) {
+    case "technology":
+      return { max: 7, note: "Technology evolves rapidly." };
+    case "science":
+    case "medicine":
+      return { max: 10, note: "Scientific research remains relevant longer but still evolves." };
+    case "social":
+      return { max: 15, note: "Social trends evolve more slowly than tech/science." };
+    case "humanities":
+      return { max: 30, note: "Historical and philosophical sources remain relevant longer." };
+    case "news":
+      return { max: 3, note: "News must be extremely recent to remain relevant." };
+    default:
+      return { max: 10, note: "General academic standard." };
+  }
+}
+
+/* -------------------------
+   YEAR DETECTION
+-------------------------- */
+
+function findYear(text) {
+  const match = text.match(/\b(19\d{2}|20\d{2})\b/);
+  return match ? parseInt(match[0]) : null;
+}
+
+/* -------------------------
+   MAIN EVALUATION
+-------------------------- */
+
 function evaluateCRAAP() {
 
   const text = document.getElementById("source").value.toLowerCase();
+  const topic = document.getElementById("topic").value.toLowerCase();
+  const field = document.getElementById("field").value;
 
-  const findYear = () => {
-    const match = text.match(/\b(19\d{2}|20\d{2})\b/);
-    return match ? parseInt(match[0]) : null;
-  };
-
-  const year = findYear();
+  const year = findYear(text);
   const currentYear = new Date().getFullYear();
+
+  const rule = getCurrencyRule(field);
 
   const categories = [
 
     {
       name: "Currency",
-      question: "Is the information current and up to date?",
+      question: "Is the information current for this field?",
       evaluate: () => {
 
         if (!year) {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "No publication year was found in the article text, so currency cannot be verified."
+            explanation:
+              `No publication year was found in the text. Without a date, we cannot verify whether the source meets the currency expectations for ${field}.`
           };
         }
 
-        if (year >= currentYear - 3) {
+        const age = currentYear - year;
+
+        if (age <= rule.max) {
           return {
             status: "PASS",
             class: "pass",
-            explanation: `This article was published in ${year}, which is recent and appropriate for most academic research.`
-          };
-        }
-
-        if (year >= currentYear - 10) {
-          return {
-            status: "CAUTION",
-            class: "caution",
-            explanation: `This article was published in ${year}, which may still be useful but could be outdated depending on the topic.`
+            explanation:
+              `This article was published in ${year}. That is ${age} years old, which is acceptable for ${field}. ${rule.note}`
           };
         }
 
         return {
           status: "FAIL",
           class: "fail",
-          explanation: `This article was published in ${year}, which is too old for most modern academic topics such as science and technology.`
+          explanation:
+            `This article was published in ${year}, making it ${age} years old. In ${field}, sources should generally be within ${rule.max} years. ${rule.note} This makes the source too outdated.`
         };
       }
     },
 
     {
       name: "Relevance",
-      question: "Does this source support your research topic?",
+      question: "Does this source match your research topic?",
       evaluate: () => {
-
-        const topic = document.getElementById("topic").value.toLowerCase();
 
         if (topic && text.includes(topic)) {
           return {
             status: "PASS",
             class: "pass",
-            explanation: `The article directly references your topic (“${topic}”), indicating strong relevance.`
+            explanation:
+              `The text directly mentions "${topic}", showing strong alignment with your research topic.`
           };
         }
 
@@ -160,28 +209,31 @@ function evaluateCRAAP() {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "The article contains academic language, but does not clearly match your specific research topic."
+            explanation:
+              "The text includes academic language, but does not clearly match your specific topic."
           };
         }
 
         return {
           status: "FAIL",
           class: "fail",
-          explanation: "No clear connection between the article content and the stated research topic was detected."
+          explanation:
+            "No clear connection between the article content and your research topic was found."
         };
       }
     },
 
     {
       name: "Authority",
-      question: "Who created the source and are they credible?",
+      question: "Who wrote this and can they be trusted?",
       evaluate: () => {
 
-        if (text.includes("university") || text.includes("journal") || text.includes(".edu")) {
+        if (text.includes("university") || text.includes(".edu") || text.includes("journal")) {
           return {
             status: "PASS",
             class: "pass",
-            explanation: "The article references an academic institution or journal, which suggests strong authority."
+            explanation:
+              "The source references an academic institution or peer-reviewed journal, which is a strong indicator of authority."
           };
         }
 
@@ -189,7 +241,8 @@ function evaluateCRAAP() {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "The source is a news outlet, which can be credible but may vary in author expertise and depth."
+            explanation:
+              "The source is from a news organization. These can be credible, but author expertise varies."
           };
         }
 
@@ -197,15 +250,17 @@ function evaluateCRAAP() {
           return {
             status: "FAIL",
             class: "fail",
-            explanation: "No author or creator is mentioned in the text, which significantly weakens authority."
+            explanation:
+              "No author is identified in the text. Without an author, credibility cannot be verified."
           };
         }
 
         return {
           status: "CAUTION",
           class: "caution",
-          explanation: "Some author or source information is present but not enough detail is provided to fully verify credibility."
-        };
+          explanation:
+            "Some authorship information exists, but it is not detailed enough to fully assess credibility."
+          };
       }
     },
 
@@ -218,7 +273,8 @@ function evaluateCRAAP() {
           return {
             status: "PASS",
             class: "pass",
-            explanation: "The article includes references or data, suggesting evidence-based claims."
+            explanation:
+              "The article includes references or data, which supports evidence-based claims."
           };
         }
 
@@ -226,14 +282,16 @@ function evaluateCRAAP() {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "The article contains reported claims but does not clearly show supporting evidence."
+            explanation:
+              "The article includes reported claims but does not clearly show supporting evidence or citations."
           };
         }
 
         return {
           status: "FAIL",
           class: "fail",
-          explanation: "No evidence, citations, or supporting data were found in the article text."
+          explanation:
+            "No citations, references, or supporting evidence were found in the text."
         };
       }
     },
@@ -247,7 +305,8 @@ function evaluateCRAAP() {
           return {
             status: "FAIL",
             class: "fail",
-            explanation: "The article appears to have a commercial purpose, suggesting potential bias toward selling or promotion."
+            explanation:
+              "The text suggests a commercial purpose (advertising or selling), which introduces bias."
           };
         }
 
@@ -255,7 +314,8 @@ function evaluateCRAAP() {
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "The article appears opinion-based, which may introduce subjective bias."
+            explanation:
+              "The source appears opinion-based, which may reflect subjective interpretation rather than objective reporting."
           };
         }
 
@@ -263,14 +323,16 @@ function evaluateCRAAP() {
           return {
             status: "PASS",
             class: "pass",
-            explanation: "The article appears informational in purpose, suggesting an intent to inform rather than persuade."
+            explanation:
+              "The source appears informational in purpose, aiming to report or explain rather than persuade."
           };
         }
 
         return {
           status: "CAUTION",
           class: "caution",
-          explanation: "The purpose of the article cannot be clearly determined from the text."
+          explanation:
+            "The purpose of the source cannot be clearly determined from the available text."
         };
       }
     }
@@ -286,7 +348,7 @@ function evaluateCRAAP() {
       <div class="box ${result.class}">
         <h3>${c.name}</h3>
         <p class="question">${c.question}</p>
-        <p>Status: <strong>${result.status}</strong></p>
+        <p><strong>${result.status}</strong></p>
         <p class="small">${result.explanation}</p>
       </div>
     `;
