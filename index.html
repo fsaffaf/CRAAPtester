@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CRAAP Test Input</title>
+</head>
+<body>
+
+<h1>CRAAP Test Input</h1>
+
+<label>Topic:</label><br>
+<input type="text" id="topic"><br><br>
+
+<label>Author:</label><br>
+<input type="text" id="author"><br><br>
+
+<label>Publisher:</label><br>
+<input type="text" id="publisher"><br><br>
+
+<label>Date:</label><br>
+<input type="date" id="date"><br><br>
+
+<label>Article Text:</label><br>
+<textarea id="article" rows="6" cols="40"></textarea><br><br>
+
+<button onclick="submitData()">Analyze</button>
+
+<script>
+function submitData() {
+  localStorage.setItem("topic", document.getElementById("topic").value);
+  localStorage.setItem("author", document.getElementById("author").value);
+  localStorage.setItem("publisher", document.getElementById("publisher").value);
+  localStorage.setItem("date", document.getElementById("date").value);
+  localStorage.setItem("article", document.getElementById("article").value);
+
+  // Go to results page
+  window.location.href = "results.html";
+}
+</script>
+
+</body>
+</html>
