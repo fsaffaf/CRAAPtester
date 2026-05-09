@@ -13,7 +13,7 @@ h1 {
 }
 
 /* =========================
-   LAYOUT
+   MAIN LAYOUT
 ========================= */
 
 .layout {
@@ -30,7 +30,7 @@ h1 {
 }
 
 /* =========================
-   CARDS
+   CARD
 ========================= */
 
 .card {
@@ -49,7 +49,7 @@ h1 {
 }
 
 /* =========================
-   SECTIONS
+   FORM STRUCTURE (IMPORTANT)
 ========================= */
 
 .input-section {
@@ -64,34 +64,35 @@ h1 {
   padding-left: 12px;
 }
 
+/* 🔥 THIS IS THE KEY FIX */
 .form-row {
   display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 15px;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  align-items: center;
   margin-top: 16px;
-  align-items: start;
 }
 
+/* left column (labels) */
 label {
   font-weight: bold;
-  padding-top: 10px;
+  text-align: left;
+  padding: 0;
 }
 
-/* =========================
-   INPUTS
-========================= */
-
+/* right column (inputs) */
 input,
 select,
 textarea {
+  width: 100%;
+  box-sizing: border-box;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ddd;
   font-size: 14px;
-  width: 100%;
-  box-sizing: border-box;
 }
 
+/* textarea height */
 textarea {
   height: 260px;
   resize: vertical;
@@ -118,7 +119,7 @@ button:hover {
 }
 
 /* =========================
-   CRAAP RESULTS
+   CRAAP CARDS
 ========================= */
 
 .craap-card {
@@ -130,20 +131,10 @@ button:hover {
   border-left: 6px solid #ccc;
 }
 
-/* status colors */
-.pass {
-  border-left-color: #2ecc71;
-}
+.pass { border-left-color: #2ecc71; }
+.caution { border-left-color: #f39c12; }
+.fail { border-left-color: #e74c3c; }
 
-.caution {
-  border-left-color: #f39c12;
-}
-
-.fail {
-  border-left-color: #e74c3c;
-}
-
-/* header */
 .craap-header {
   display: flex;
   justify-content: space-between;
@@ -155,7 +146,6 @@ button:hover {
   font-weight: bold;
 }
 
-/* badge */
 .badge {
   padding: 4px 10px;
   border-radius: 20px;
@@ -164,17 +154,9 @@ button:hover {
   font-weight: bold;
 }
 
-.badge.pass {
-  background: #2ecc71;
-}
-
-.badge.caution {
-  background: #f39c12;
-}
-
-.badge.fail {
-  background: #e74c3c;
-}
+.badge.pass { background: #2ecc71; }
+.badge.caution { background: #f39c12; }
+.badge.fail { background: #e74c3c; }
 
 /* sections inside cards */
 .section {
@@ -196,4 +178,18 @@ button:hover {
   border-radius: 8px;
   font-size: 13px;
   border-left: 3px solid #999;
+}
+
+/* =========================
+   MOBILE FIX
+========================= */
+
+@media (max-width: 700px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  label {
+    margin-bottom: 6px;
+  }
 }
