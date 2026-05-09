@@ -1,3 +1,4 @@
+
 const publisherMap = {
   science: ["Nature", "Science (AAAS)", "New England Journal of Medicine"],
   technology: ["Wired", "MIT Technology Review", "IEEE Spectrum"],
