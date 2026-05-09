@@ -1,15 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CRAAP Test Analyzer</title>
+  <title>CRAAP Test Results</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
       padding: 20px;
     }
+
     .container {
       max-width: 700px;
       margin: auto;
@@ -18,61 +19,126 @@
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+
     h1, h2 {
       text-align: center;
     }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #eef;
+      border-radius: 8px;
     }
-    input, textarea {
+
+    ul {
+      padding-left: 20px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px;
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
+      background-color: #d9534f;
+      color: white;
+      border: none;
       border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
     }
-    textarea {
-      height: 200px;
+
+    button:hover {
+      background-color: #c9302c;
     }
   </style>
 </head>
+
 <body>
+
 <div class="container">
-  <h1>CRAAP Test Analyzer</h1>
+  <h1>CRAAP Test Results</h1>
+  <div id="results" class="result"></div>
 
-  <!-- Research Topic -->
-  <label for="topic">Research Topic</label>
-  <input type="text" id="topic" name="topic" placeholder="Enter your research topic">
-
-  <!-- Article Information -->
-  <h2>Article Information</h2>
-
-  <label for="author">Author Name</label>
-  <input type="text" id="author" name="author" placeholder="Enter author's name">
-
-  <label for="date">Date of Publication</label>
-  <input type="date" id="date" name="date">
-
-  <label for="publisher">Publisher</label>
-  <input type="text" id="publisher" name="publisher" placeholder="e.g., BBC, NY Times, Nature">
-
-  <!-- Full Article -->
-  <label for="article">Full Article Text</label>
-  <textarea id="article" name="article" placeholder="Paste the full article here..."></textarea>
+  <button onclick="resetApp()">Start Over</button>
 </div>
 
-</body>
-
 <script>
-window.onload = function() {
-  const topic = localStorage.getItem("topic");
-  const author = localStorage.getItem("author");
+function analyzeCRAAP() {
+  const topic = localStorage.getItem("topic") || "";
+  const author = localStorage.getItem("author") || "";
+  const date = localStorage.getItem("date") || "";
+  const publisher = localStorage.getItem("publisher") || "";
+  const article = localStorage.getItem("article") || "";
 
-  console.log("Topic:", topic);
-  console.log("Author:", author);
+  let scores = {
+    currency: 0,
+    relevance: 0,
+    authority: 0,
+    accuracy: 0,
+    purpose: 0
+  };
 
-  // later: run CRAAP analysis here
-};
+  // Currency
+  if (date) {
+    const year = new Date(date).getFullYear();
+    const currentYear = new Date().getFullYear();
+    scores.currency = Math.max(0, 10 - (currentYear - year));
+  }
+
+  // Relevance
+  if (topic && article.toLowerCase().includes(topic.toLowerCase())) {
+    scores.relevance = 8;
+  } else {
+    scores.relevance = 4;
+  }
+
+  // Authority
+  const trusted = ["bbc", "ny times", "nature", "cnn", "reuters"];
+  if (trusted.some(p => publisher.toLowerCase().includes(p))) {
+    scores.authority = 9;
+  } else {
+    scores.authority = 5;
+  }
+
+  // Accuracy
+  scores.accuracy = article.length > 1000 ? 8 : 5;
+
+  // Purpose
+  const biasWords = ["always", "never", "worst", "best"];
+  const hasBias = biasWords.some(word => article.toLowerCase().includes(word));
+  scores.purpose = hasBias ? 4 : 8;
+
+  const total = Object.values(scores).reduce((a, b) => a + b, 0);
+
+  // Display results
+  document.getElementById("results").innerHTML = `
+    <h2>Analysis Summary</h2>
+
+    <p><strong>Topic:</strong> ${topic}</p>
+    <p><strong>Author:</strong> ${author}</p>
+    <p><strong>Publisher:</strong> ${publisher}</p>
+
+    <h3>Scores (out of 10)</h3>
+    <ul>
+      <li>Currency: ${scores.currency}</li>
+      <li>Relevance: ${scores.relevance}</li>
+      <li>Authority: ${scores.authority}</li>
+      <li>Accuracy: ${scores.accuracy}</li>
+      <li>Purpose: ${scores.purpose}</li>
+    </ul>
+
+    <h3>Total Score: ${total}/50</h3>
+  `;
+}
+
+// Reset button
+function resetApp() {
+  localStorage.clear();
+  window.location.href = "topic.html";
+}
+
+window.onload = analyzeCRAAP;
 </script>
+
+</body>
+</html>
