@@ -15,26 +15,16 @@ body {
   background: #f4f4f4;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
+h1 { text-align: center; margin-bottom: 20px; }
 
 .layout {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: 20px;
-  align-items: start;
 }
 
 @media (max-width: 1000px) {
   .layout { grid-template-columns: 1fr; }
-  .input-panel {
-    position: relative;
-    top: 0;
-    max-height: none;
-    overflow-y: visible;
-  }
 }
 
 .card {
@@ -61,12 +51,6 @@ h1 {
   padding-left: 12px;
 }
 
-.divider {
-  height: 2px;
-  background: linear-gradient(to right, transparent, #ccc, transparent);
-  margin: 25px 0;
-}
-
 .form-row {
   display: grid;
   grid-template-columns: 220px 1fr;
@@ -74,20 +58,15 @@ h1 {
   margin-top: 16px;
 }
 
-.form-row label {
-  font-weight: bold;
-  padding-top: 10px;
-}
+label { font-weight: bold; padding-top: 10px; }
 
 input, select, textarea {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ddd;
-  font-size: 14px;
-  box-sizing: border-box;
 }
 
-textarea { height: 260px; resize: vertical; }
+textarea { height: 260px; }
 
 button {
   width: 100%;
@@ -97,17 +76,7 @@ button {
   color: white;
   border: none;
   border-radius: 10px;
-  cursor: pointer;
   font-weight: bold;
-}
-
-button:hover { background: #1b4fb3; }
-
-.suggested {
-  color: red;
-  font-weight: bold;
-  margin-top: 8px;
-  display: block;
 }
 
 .craap-card {
@@ -128,8 +97,6 @@ button:hover { background: #1b4fb3; }
   justify-content: space-between;
 }
 
-.craap-title { font-size: 18px; font-weight: bold; }
-
 .badge {
   padding: 4px 10px;
   border-radius: 20px;
@@ -138,9 +105,17 @@ button:hover { background: #1b4fb3; }
   font-weight: bold;
 }
 
-.badge.pass { background: #2ecc71; }
-.badge.caution { background: #f39c12; }
-.badge.fail { background: #e74c3c; }
+.badge.pass { background:#2ecc71; }
+.badge.caution { background:#f39c12; }
+.badge.fail { background:#e74c3c; }
+
+.section { margin-top: 12px; }
+
+.label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #666;
+}
 
 .evidence-box {
   margin-top: 8px;
@@ -148,7 +123,6 @@ button:hover { background: #1b4fb3; }
   padding: 10px;
   border-radius: 8px;
   font-size: 13px;
-  border-left: 3px solid #999;
 }
 
 </style>
@@ -162,74 +136,59 @@ button:hover { background: #1b4fb3; }
 
   <div class="card input-panel">
 
-    <!-- TOPIC -->
     <div class="input-section">
-      <h2 class="section-title">Your Research Topic</h2>
-
+      <h2 class="section-title">Topic</h2>
       <div class="form-row">
-        <label for="topic">Research Topic</label>
-        <input id="topic" placeholder="e.g., climate change, AI..." />
+        <label>Topic</label>
+        <input id="topic">
       </div>
     </div>
 
-    <div class="divider"></div>
-
-    <!-- ARTICLE INFO -->
     <div class="input-section">
-      <h2 class="section-title">Article Information</h2>
+      <h2 class="section-title">Article Info</h2>
 
       <div class="form-row">
-        <label for="authorInput">Author</label>
-        <input id="authorInput" />
+        <label>Author</label>
+        <input id="authorInput">
       </div>
 
       <div class="form-row">
-        <label for="dateInput">Publication Date</label>
-        <input id="dateInput" />
+        <label>Date</label>
+        <input id="dateInput">
       </div>
 
-      <!-- MOVED BACK HERE -->
       <div class="form-row">
-        <label for="field">Publication Field</label>
+        <label>Field</label>
+        <select id="field" onchange="updatePublisherOptions()">
+          <option value="science">Science</option>
+          <option value="technology">Technology</option>
+          <option value="social">Social Science</option>
+          <option value="humanities">Humanities</option>
+          <option value="news">News</option>
+        </select>
+      </div>
 
+      <div class="form-row">
+        <label>Publisher</label>
         <div>
-          <select id="field" onchange="updatePublisherOptions()">
-            <option value="science">Science / Medicine</option>
-            <option value="technology">Technology</option>
-            <option value="social">Social Science</option>
-            <option value="humanities">Humanities</option>
-            <option value="news">News / Journalism</option>
-          </select>
-
-          <span id="suggestedField" class="suggested"></span>
+          <select id="publisherSelect" onchange="syncPublisher()"></select>
+          <input id="publisherInput" style="margin-top:10px;">
         </div>
       </div>
 
       <div class="form-row">
-        <label for="publisherSelect">Publisher / Source</label>
-
-        <div>
-          <select id="publisherSelect" onchange="syncPublisher()">
-            <option value="">Select known publisher</option>
-          </select>
-
-          <input id="publisherInput" placeholder="Or type manually..." style="margin-top:10px;" />
-        </div>
-      </div>
-
-      <div class="form-row">
-        <label for="source">Full Article Text</label>
+        <label>Text</label>
         <textarea id="source"></textarea>
       </div>
 
     </div>
 
-    <button onclick="evaluateCRAAP()">Evaluate Source</button>
+    <button onclick="evaluateCRAAP()">Evaluate</button>
 
   </div>
 
-  <div class="card results-panel">
-    <h2>CRAAP Analysis</h2>
+  <div class="card">
+    <h2>Results</h2>
     <div id="output"></div>
   </div>
 
@@ -237,25 +196,25 @@ button:hover { background: #1b4fb3; }
 
 <script>
 
-/* PUBLISHERS */
+/* publishers */
 const publisherMap = {
-  science: ["Nature","Science (AAAS)","New England Journal of Medicine"],
-  technology: ["Wired","MIT Technology Review","IEEE Spectrum"],
-  social: ["Journal of Social Psychology","American Journal of Sociology"],
-  humanities: ["Journal of Philosophy","American Historical Review"],
-  news: ["New York Times","Washington Post","BBC","Reuters","Associated Press","CNN"]
+  science: ["Nature","Science (AAAS)","NEJM"],
+  technology: ["Wired","MIT Tech Review"],
+  social: ["Journal of Social Psychology"],
+  humanities: ["Journal of Philosophy"],
+  news: ["NYT","Washington Post","BBC","Reuters","CNN"]
 };
 
 function updatePublisherOptions() {
   const field = document.getElementById("field").value;
   const select = document.getElementById("publisherSelect");
 
-  select.innerHTML = `<option value="">Select known publisher</option>`;
+  select.innerHTML = `<option value="">Select</option>`;
 
-  (publisherMap[field] || []).forEach(pub => {
+  (publisherMap[field] || []).forEach(p => {
     const opt = document.createElement("option");
-    opt.value = pub.toLowerCase();
-    opt.textContent = pub;
+    opt.value = p.toLowerCase();
+    opt.textContent = p;
     select.appendChild(opt);
   });
 }
@@ -265,22 +224,27 @@ function syncPublisher() {
   if (v) document.getElementById("publisherInput").value = v;
 }
 
-/* FIELD SUGGESTION */
-function suggestField(text) {
-  text = text.toLowerCase();
-  if (text.includes("clinical")) return "science";
-  if (text.includes("ai")) return "technology";
-  if (text.includes("survey")) return "social";
-  if (text.includes("history")) return "humanities";
-  if (text.includes("reported")) return "news";
-  return null;
+function findEvidence(text, keys=[]) {
+  const s = text.split(/(?<=[.!?])\s+/);
+  return s.find(x => keys.some(k => x.toLowerCase().includes(k)))
+    || "No evidence found";
+}
+
+function getMaxAge(field) {
+  return {
+    technology: 5,
+    science: 10,
+    social: 15,
+    humanities: 30,
+    news: 3
+  }[field];
 }
 
 /* CRAAP */
 function evaluateCRAAP() {
 
   const text = document.getElementById("source").value.toLowerCase();
-  if (!text.trim()) return alert("Add article text");
+  if (!text.trim()) return alert("Add text");
 
   const topic = document.getElementById("topic").value.toLowerCase();
   const field = document.getElementById("field").value;
@@ -289,169 +253,142 @@ function evaluateCRAAP() {
   const date = document.getElementById("dateInput").value.trim();
   const publisher = document.getElementById("publisherInput").value.toLowerCase().trim();
 
-  document.getElementById("suggestedField").innerText =
-    suggestField(text) ? "Suggested Field: " + suggestField(text).toUpperCase() : "";
-
   const year = (date.match(/\b(19\d{2}|20\d{2})\b/) || [])[0];
   const currentYear = new Date().getFullYear();
+  const maxAge = getMaxAge(field);
   const age = year ? currentYear - parseInt(year) : null;
-
-  const maxAge = { science:10, technology:7, social:15, humanities:30, news:3 }[field];
 
   const credible = ["new york times","washington post","bbc","reuters","cnn","nature"];
 
- const categories = [
+  const categories = [
 
-  {
-    name: "Currency",
-    evaluate: () => {
+    {
+      name:"Currency",
+      evaluate: () => {
 
-      if (!year) {
+        if (!year) return {
+          status:"CAUTION",
+          explanation:"No date available",
+          evidence:date
+        };
+
+        if (age <= maxAge) return {
+          status:"PASS",
+          explanation:"Recent enough",
+          evidence:date
+        };
+
         return {
-          status: "CAUTION",
-          class: "caution",
-          explanation: "Publication date not clearly provided.",
-          evidence: date || "No date provided"
+          status:"FAIL",
+          explanation:"Too old for field",
+          evidence:date
         };
       }
+    },
 
-      const age = currentYear - year;
+    {
+      name:"Authority",
+      evaluate: () => {
 
-      return age <= maxAge
-        ? {
-            status: "PASS",
-            class: "pass",
-            explanation: `Published in ${year}, acceptable for ${field}.`,
-            evidence: date
-          }
-        : {
-            status: "FAIL",
-            class: "fail",
-            explanation: `Published in ${year}, too old for ${field}.`,
-            evidence: date
-          };
-    }
-  },
+        if (!author) return {
+          status:"FAIL",
+          explanation:"No author listed",
+          evidence:publisher
+        };
 
-  {
-    name: "Authority",
-    evaluate: () => {
+        if (credible.some(c => publisher.includes(c))) return {
+          status:"PASS",
+          explanation:"Credible publisher + author",
+          evidence:author
+        };
 
-      const evidence =
-        `Author: ${author || "Not found"} | Publisher: ${publisher || "Not provided"}`;
-
-      if (!author) {
         return {
-          status: "CAUTION",
-          class: "caution",
-          explanation: "No author provided.",
-          evidence
+          status:"CAUTION",
+          explanation:"Author present but unclear publisher",
+          evidence:publisher
         };
       }
+    },
 
-      if (credible.some(c => publisher.includes(c))) {
+    {
+      name:"Relevance",
+      evaluate: () => {
+
+        if (topic && text.includes(topic)) return {
+          status:"PASS",
+          explanation:"Directly related to topic",
+          evidence:findEvidence(text,[topic])
+        };
+
         return {
-          status: "PASS",
-          class: "pass",
-          explanation: "Credible publisher + author provided.",
-          evidence
+          status:"FAIL",
+          explanation:"Not relevant",
+          evidence:"No match"
         };
       }
+    },
 
-      return {
-        status: "CAUTION",
-        class: "caution",
-        explanation: "Author present but publisher credibility unclear.",
-        evidence
-      };
+    {
+      name:"Accuracy",
+      evaluate: () => {
+
+        if (text.includes("study") || text.includes("data")) return {
+          status:"PASS",
+          explanation:"Evidence-based language",
+          evidence:findEvidence(text,["study","data"])
+        };
+
+        return {
+          status:"FAIL",
+          explanation:"No evidence indicators",
+          evidence:"None"
+        };
+      }
+    },
+
+    {
+      name:"Purpose",
+      evaluate: () => {
+
+        if (text.includes("buy") || text.includes("sale")) return {
+          status:"FAIL",
+          explanation:"Commercial intent",
+          evidence:findEvidence(text,["buy","sale"])
+        };
+
+        return {
+          status:"PASS",
+          explanation:"Informational",
+          evidence:"No ads detected"
+        };
+      }
     }
-  },
 
-  {
-    name: "Relevance",
-    evaluate: () => {
-
-      const evidence = topic
-        ? findEvidence(text, [topic])
-        : "No topic provided.";
-
-      return (topic && text.includes(topic))
-        ? {
-            status: "PASS",
-            class: "pass",
-            explanation: "Direct relevance to topic found.",
-            evidence
-          }
-        : {
-            status: "FAIL",
-            class: "fail",
-            explanation: "No clear relevance to topic.",
-            evidence
-          };
-    }
-  },
-
-  {
-    name: "Accuracy",
-    evaluate: () => {
-
-      const evidence = findEvidence(text, ["data", "study", "research"]);
-
-      return (
-        text.includes("study") ||
-        text.includes("data") ||
-        text.includes("research")
-      )
-        ? {
-            status: "PASS",
-            class: "pass",
-            explanation: "Evidence-based language detected.",
-            evidence
-          }
-        : {
-            status: "FAIL",
-            class: "fail",
-            explanation: "No supporting evidence detected.",
-            evidence
-          };
-    }
-  },
-
-  {
-    name: "Purpose",
-    evaluate: () => {
-
-      const evidence = findEvidence(text, ["buy", "sale", "opinion"]);
-
-      return (text.includes("buy") || text.includes("sale"))
-        ? {
-            status: "FAIL",
-            class: "fail",
-            explanation: "Commercial intent detected.",
-            evidence
-          }
-        : {
-            status: "PASS",
-            class: "pass",
-            explanation: "Informational purpose detected.",
-            evidence
-          };
-    }
-  }
-
-];
+  ];
 
   let html = "";
 
-  categories.forEach(c=>{
+  categories.forEach(c => {
     const r = c.evaluate();
+
     html += `
-      <div class="craap-card ${r.class}">
+      <div class="craap-card ${r.status.toLowerCase()}">
+
         <div class="craap-header">
           <div class="craap-title">${c.name}</div>
-          <div class="badge ${r.class}">${r.status}</div>
+          <div class="badge ${r.status.toLowerCase()}">${r.status}</div>
         </div>
-        <div class="evidence-box">${r.evidence}</div>
+
+        <div class="section">
+          <div class="label">RESULT</div>
+          <div>${r.explanation}</div>
+        </div>
+
+        <div class="section">
+          <div class="label">EVIDENCE</div>
+          <div class="evidence-box">${r.evidence}</div>
+        </div>
+
       </div>
     `;
   });
