@@ -1,0 +1,125 @@
+/* ===== GLOBAL ===== */
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #5f72be, #9b23ea);
+  margin: 0;
+  padding: 20px;
+  color: #fff;
+}
+
+/* ===== GLASS CONTAINER ===== */
+.container {
+  max-width: 750px;
+  margin: auto;
+  padding: 25px;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,0.2);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* ===== HEADINGS ===== */
+h1, h2 {
+  text-align: center;
+  color: white;
+}
+
+/* ===== FORM GRID ===== */
+.form-group {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  align-items: start;
+  margin-bottom: 15px;
+}
+
+/* ===== LABELS ===== */
+label {
+  font-weight: bold;
+  color: #fff;
+}
+
+/* ===== INPUTS ===== */
+input, textarea, select {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  padding: 10px;
+  color: white;
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #ddd;
+}
+
+/* focus glow */
+input:focus,
+textarea:focus,
+select:focus {
+  border: 1px solid #fff;
+  box-shadow: 0 0 8px rgba(255,255,255,0.6);
+}
+
+/* ===== TEXTAREA ===== */
+textarea {
+  resize: vertical;
+}
+
+/* ===== BUTTON ===== */
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+
+  background: linear-gradient(135deg, #ff7eb3, #ff758c);
+  color: white;
+
+  font-size: 16px;
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+}
+
+/* ===== RESULTS BOX ===== */
+.result {
+  background: rgba(255,255,255,0.2);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+/* ===== PASS/FAIL COLORS ===== */
+strong {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+strong:contains("PASS") {
+  color: #00ffae;
+}
+
+strong:contains("CAUTION") {
+  color: #ffd166;
+}
+
+strong:contains("FAIL") {
+  color: #ff4d6d;
+}
+
+/* fallback styling */
+small {
+  color: #eee;
+}
