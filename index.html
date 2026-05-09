@@ -6,141 +6,263 @@
 <title>CRAAP v3.0 Evidence Analyzer</title>
 
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 980px;
-    margin: auto;
-    padding: 20px;
-    background: #f4f4f4;
+
+body {
+  font-family: Arial, sans-serif;
+  max-width: 1500px;
+  margin: auto;
+  padding: 20px;
+  background: #f4f4f4;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .layout {
+    grid-template-columns: 1fr;
   }
 
-  h1 { text-align: center; }
+  .input-panel {
+    position: relative;
+    top: 0;
+    max-height: none;
+    overflow-y: visible;
+  }
+}
 
-  .card {
-    background: white;
-    padding: 15px;
-    margin: 12px 0;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+/* =========================
+   CARDS
+========================= */
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+/* =========================
+   INPUT PANEL
+========================= */
+
+.input-panel {
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+/* =========================
+   SECTION STYLES
+========================= */
+
+.input-section {
+  padding: 10px 0;
+}
+
+.section-title {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #2d6cdf;
+  border-left: 5px solid #2d6cdf;
+  padding-left: 12px;
+}
+
+.divider {
+  height: 2px;
+  background: linear-gradient(to right, transparent, #ccc, transparent);
+  margin: 25px 0;
+}
+
+/* =========================
+   FORM LAYOUT
+========================= */
+
+.form-row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  align-items: start;
+  gap: 15px;
+  margin-top: 16px;
+}
+
+.form-row label {
+  font-weight: bold;
+  padding-top: 10px;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .form-row {
+    grid-template-columns: 1fr;
   }
 
-  label {
-    font-weight: bold;
-    display: block;
-    margin-top: 10px;
+  .form-row label {
+    padding-top: 0;
   }
+}
 
-  input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-  }
+/* =========================
+   INPUTS
+========================= */
 
-  textarea { height: 180px; }
+input,
+select,
+textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  box-sizing: border-box;
+}
 
-  button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    background: #2d6cdf;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-  }
+textarea {
+  height: 260px;
+  resize: vertical;
+}
 
-  button:hover { background: #1b4fb3; }
+/* =========================
+   BUTTON
+========================= */
 
-  /* =========================
-     METADATA PANEL
-  ========================= */
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 25px;
+  background: #2d6cdf;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 15px;
+}
 
-  .metadata {
-    background: #ffffff;
-    border-left: 6px solid #444;
-    padding: 14px;
-    margin-bottom: 12px;
-    border-radius: 10px;
-  }
+button:hover {
+  background: #1b4fb3;
+}
 
-  .meta-title {
-    font-weight: bold;
-    margin-bottom: 8px;
-  }
+/* =========================
+   SUGGESTED FIELD
+========================= */
 
-  .suggested {
-    color: red;
-    font-weight: bold;
-    margin-top: 6px;
-    display: block;
-  }
+.suggested {
+  color: red;
+  font-weight: bold;
+  margin-top: 8px;
+  display: block;
+}
 
-  /* =========================
-     CRAAP CARDS
-  ========================= */
+/* =========================
+   RESULTS PANEL
+========================= */
 
-  .craap-card {
-    background: white;
-    border-radius: 12px;
-    padding: 14px;
-    margin-top: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border-left: 6px solid #ccc;
-  }
+.results-panel {
+  min-height: 300px;
+}
 
-  .pass { border-left-color: #2ecc71; }
-  .caution { border-left-color: #f39c12; }
-  .fail { border-left-color: #e74c3c; }
+/* =========================
+   CRAAP CARDS
+========================= */
 
-  .craap-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+.craap-card {
+  background: white;
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-left: 6px solid #ccc;
+}
 
-  .craap-title {
-    font-size: 18px;
-    font-weight: bold;
-  }
+.pass {
+  border-left-color: #2ecc71;
+}
 
-  .badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-    color: white;
-  }
+.caution {
+  border-left-color: #f39c12;
+}
 
-  .badge.pass { background: #2ecc71; }
-  .badge.caution { background: #f39c12; }
-  .badge.fail { background: #e74c3c; }
+.fail {
+  border-left-color: #e74c3c;
+}
 
-  .section { margin-top: 10px; }
+.craap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .label {
-    font-size: 12px;
-    font-weight: bold;
-    color: #666;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
+.craap-title {
+  font-size: 18px;
+  font-weight: bold;
+}
 
-  .text {
-    font-size: 14px;
-    color: #222;
-  }
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+}
 
-  .evidence-box {
-    margin-top: 8px;
-    background: #f7f7f7;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 13px;
-    border-left: 3px solid #999;
-  }
+.badge.pass {
+  background: #2ecc71;
+}
+
+.badge.caution {
+  background: #f39c12;
+}
+
+.badge.fail {
+  background: #e74c3c;
+}
+
+.section {
+  margin-top: 12px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.text {
+  font-size: 14px;
+  color: #222;
+  line-height: 1.5;
+}
+
+.evidence-box {
+  margin-top: 8px;
+  background: #f7f7f7;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  border-left: 3px solid #999;
+}
+
 </style>
 </head>
 
@@ -148,52 +270,164 @@
 
 <h1>CRAAP v3.0 Evidence Analyzer</h1>
 
-<div class="card">
+<div class="layout">
 
-  <label>Your Research Topic</label>
-  <input id="topic" placeholder="e.g., climate change, AI, civil rights..." />
+  <!-- LEFT PANEL -->
 
-  <label>Publication Field (NOT your topic)</label>
-  <select id="field">
-    <option value="science">Science / Medicine</option>
-    <option value="technology">Technology</option>
-    <option value="social">Social Science</option>
-    <option value="humanities">Humanities</option>
-    <option value="news">News / Journalism</option>
-  </select>
+  <div class="card input-panel">
 
-  <span id="suggestedField" class="suggested"></span>
+    <!-- RESEARCH TOPIC -->
 
-  <label>Author (as shown in article)</label>
-  <input id="authorInput" placeholder="e.g., John Smith or 'No author listed'" />
+    <div class="input-section">
 
-  <label>Publication Date</label>
-  <input id="dateInput" placeholder="e.g., March 12, 2022 or 'Not listed'" />
+      <h2 class="section-title">
+        Your Research Topic
+      </h2>
 
-  <label>Publisher / Source Outlet</label>
-  <select id="publisherSelect" onchange="syncPublisher()">
-    <option value="">Select known publisher (optional)</option>
-    <option value="new york times">New York Times</option>
-    <option value="washington post">Washington Post</option>
-    <option value="bbc">BBC</option>
-    <option value="reuters">Reuters</option>
-    <option value="associated press">Associated Press</option>
-    <option value="cnn">CNN</option>
-    <option value="nature">Nature</option>
-    <option value="science journal">Science (AAAS)</option>
-  </select>
+      <div class="form-row">
+        <label for="topic">Research Topic</label>
 
-  <input id="publisherInput" placeholder="Or type publisher manually..." />
+        <input
+          id="topic"
+          placeholder="e.g., climate change, AI, civil rights..."
+        />
+      </div>
 
-  <label>Paste Full Article Text</label>
-  <textarea id="source"></textarea>
+      <div class="form-row">
+        <label for="field">Publication Field</label>
 
-  <button onclick="evaluateCRAAP()">Evaluate Source</button>
-</div>
+        <div>
 
-<div class="card">
-  <h2>CRAAP Analysis</h2>
-  <div id="output"></div>
+          <select id="field">
+            <option value="science">Science / Medicine</option>
+            <option value="technology">Technology</option>
+            <option value="social">Social Science</option>
+            <option value="humanities">Humanities</option>
+            <option value="news">News / Journalism</option>
+          </select>
+
+          <span id="suggestedField" class="suggested"></span>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ARTICLE INFO -->
+
+    <div class="input-section">
+
+      <h2 class="section-title">
+        Article Information
+      </h2>
+
+      <div class="form-row">
+        <label for="authorInput">Author</label>
+
+        <input
+          id="authorInput"
+          placeholder="John Smith"
+        />
+      </div>
+
+      <div class="form-row">
+        <label for="dateInput">Publication Date</label>
+
+        <input
+          id="dateInput"
+          placeholder="March 12, 2022"
+        />
+      </div>
+
+      <div class="form-row">
+
+        <label for="publisherSelect">
+          Publisher / Source
+        </label>
+
+        <div>
+
+          <select
+            id="publisherSelect"
+            onchange="syncPublisher()"
+          >
+            <option value="">
+              Select known publisher
+            </option>
+
+            <option value="new york times">
+              New York Times
+            </option>
+
+            <option value="washington post">
+              Washington Post
+            </option>
+
+            <option value="bbc">
+              BBC
+            </option>
+
+            <option value="reuters">
+              Reuters
+            </option>
+
+            <option value="associated press">
+              Associated Press
+            </option>
+
+            <option value="cnn">
+              CNN
+            </option>
+
+            <option value="nature">
+              Nature
+            </option>
+
+            <option value="science journal">
+              Science (AAAS)
+            </option>
+
+          </select>
+
+          <input
+            id="publisherInput"
+            placeholder="Or type publisher manually..."
+            style="margin-top:10px;"
+          />
+
+        </div>
+      </div>
+
+      <div class="form-row">
+
+        <label for="source">
+          Full Article Text
+        </label>
+
+        <textarea id="source"></textarea>
+
+      </div>
+
+    </div>
+
+    <button onclick="evaluateCRAAP()">
+      Evaluate Source
+    </button>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+
+  <div class="card results-panel">
+
+    <h2>CRAAP Analysis</h2>
+
+    <div id="output"></div>
+
+  </div>
+
 </div>
 
 <script>
@@ -203,13 +437,23 @@
 ========================= */
 
 function suggestField(text) {
+
   text = text.toLowerCase();
 
-  if (text.includes("clinical") || text.includes("trial")) return "science";
-  if (text.includes("ai") || text.includes("software")) return "technology";
-  if (text.includes("economy") || text.includes("survey")) return "social";
-  if (text.includes("history") || text.includes("philosophy")) return "humanities";
-  if (text.includes("reported") || text.includes("journalist")) return "news";
+  if (text.includes("clinical") || text.includes("trial"))
+    return "science";
+
+  if (text.includes("ai") || text.includes("software"))
+    return "technology";
+
+  if (text.includes("economy") || text.includes("survey"))
+    return "social";
+
+  if (text.includes("history") || text.includes("philosophy"))
+    return "humanities";
+
+  if (text.includes("reported") || text.includes("journalist"))
+    return "news";
 
   return null;
 }
@@ -219,13 +463,18 @@ function suggestField(text) {
 ========================= */
 
 function findEvidence(text, keywords = []) {
+
   const sentences = text.split(/(?<=[.!?])\s+/);
+
   return sentences.find(s =>
-    keywords.some(k => s.toLowerCase().includes(k))
+    keywords.some(k =>
+      s.toLowerCase().includes(k)
+    )
   ) || "No specific evidence found.";
 }
 
 function getMaxAge(field) {
+
   return {
     technology: 7,
     science: 10,
@@ -240,62 +489,129 @@ function getMaxAge(field) {
 ========================= */
 
 function syncPublisher() {
-  const selected = document.getElementById("publisherSelect").value;
+
+  const selected =
+    document.getElementById("publisherSelect").value;
+
   if (selected) {
     document.getElementById("publisherInput").value = selected;
   }
 }
 
 /* =========================
-   MAIN FUNCTION
+   MAIN ANALYZER
 ========================= */
 
 function evaluateCRAAP() {
 
-  const text = document.getElementById("source").value.toLowerCase();
-  const topic = document.getElementById("topic").value.toLowerCase();
-  const field = document.getElementById("field").value;
+  const text =
+    document.getElementById("source").value.toLowerCase();
 
-  const author = document.getElementById("authorInput").value;
-  const date = document.getElementById("dateInput").value;
-  const publisher = document.getElementById("publisherInput").value.toLowerCase();
+  if (!text.trim()) {
+    alert("Please paste article text.");
+    return;
+  }
+
+  const topic =
+    document.getElementById("topic")
+      .value
+      .toLowerCase()
+      .trim();
+
+  const field =
+    document.getElementById("field").value;
+
+  const author =
+    document.getElementById("authorInput")
+      .value
+      .trim();
+
+  const date =
+    document.getElementById("dateInput")
+      .value
+      .trim();
+
+  const publisher =
+    document.getElementById("publisherInput")
+      .value
+      .toLowerCase()
+      .trim();
+
+  /* FIELD SUGGESTION */
+
+  if (!text.trim()) {
+    document.getElementById("suggestedField")
+      .innerText = "";
+  }
 
   const suggested = suggestField(text);
+
   document.getElementById("suggestedField").innerText =
-    suggested ? "Suggested Field: " + suggested.toUpperCase() : "";
+    suggested
+      ? "Suggested Field: " + suggested.toUpperCase()
+      : "";
+
+  /* YEAR EXTRACTION */
 
   const currentYear = new Date().getFullYear();
-  const yearMatch = date.match(/\b(19\d{2}|20\d{2})\b/);
-  const year = yearMatch ? parseInt(yearMatch[0]) : null;
+
+  const yearMatch =
+    date.match(/\b(19\d{2}|20\d{2})\b/);
+
+  const year =
+    yearMatch
+      ? parseInt(yearMatch[0])
+      : null;
 
   const maxAge = getMaxAge(field);
 
-  const credible = ["new york times","washington post","bbc","reuters","associated press","cnn","nature"];
+  /* CREDIBLE SOURCES */
+
+  const credible = [
+    "new york times",
+    "washington post",
+    "bbc",
+    "reuters",
+    "associated press",
+    "cnn",
+    "nature"
+  ];
+
+  /* =========================
+     CRAAP CATEGORIES
+  ========================= */
 
   const categories = [
 
     {
       name: "Currency",
+
       evaluate: () => {
 
-        const evidence = date || "No date provided";
+        const evidence =
+          date || "No date provided";
 
         if (!year) {
+
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "Publication date not clearly provided.",
+            explanation:
+              "Publication date not clearly provided.",
             evidence
           };
         }
 
-        const age = currentYear - year;
+        const age =
+          currentYear - year;
 
         if (age <= maxAge) {
+
           return {
             status: "PASS",
             class: "pass",
-            explanation: `Published in ${year}, acceptable for ${field}.`,
+            explanation:
+              `Published in ${year}, acceptable for ${field}.`,
             evidence
           };
         }
@@ -303,7 +619,8 @@ function evaluateCRAAP() {
         return {
           status: "FAIL",
           class: "fail",
-          explanation: `Published in ${year}, too old for ${field}.`,
+          explanation:
+            `Published in ${year}, too old for ${field}.`,
           evidence
         };
       }
@@ -311,24 +628,34 @@ function evaluateCRAAP() {
 
     {
       name: "Authority",
+
       evaluate: () => {
 
-        const evidence = `Author: ${author || "Not found"} | Publisher: ${publisher || "Not provided"}`;
+        const evidence =
+          `Author: ${author || "Not found"} | Publisher: ${publisher || "Not provided"}`;
 
         if (!author) {
+
           return {
             status: "CAUTION",
             class: "caution",
-            explanation: "No author provided.",
+            explanation:
+              "No author provided.",
             evidence
           };
         }
 
-        if (credible.includes(publisher)) {
+        if (
+          credible.some(c =>
+            publisher.includes(c)
+          )
+        ) {
+
           return {
             status: "PASS",
             class: "pass",
-            explanation: "Credible publisher + author provided.",
+            explanation:
+              "Credible publisher + author provided.",
             evidence
           };
         }
@@ -336,7 +663,8 @@ function evaluateCRAAP() {
         return {
           status: "CAUTION",
           class: "caution",
-          explanation: "Author present but publisher credibility unclear.",
+          explanation:
+            "Author present but publisher credibility unclear.",
           evidence
         };
       }
@@ -344,14 +672,24 @@ function evaluateCRAAP() {
 
     {
       name: "Relevance",
-      evaluate: () => {
-        const evidence = findEvidence(text, [topic]);
 
-        if (text.includes(topic)) {
+      evaluate: () => {
+
+        const evidence =
+          topic
+            ? findEvidence(text, [topic])
+            : "No topic provided.";
+
+        if (
+          topic &&
+          text.includes(topic)
+        ) {
+
           return {
             status: "PASS",
             class: "pass",
-            explanation: "Direct relevance to topic found.",
+            explanation:
+              "Direct relevance to topic found.",
             evidence
           };
         }
@@ -359,7 +697,8 @@ function evaluateCRAAP() {
         return {
           status: "FAIL",
           class: "fail",
-          explanation: "No clear relevance to topic.",
+          explanation:
+            "No clear relevance to topic.",
           evidence
         };
       }
@@ -367,15 +706,26 @@ function evaluateCRAAP() {
 
     {
       name: "Accuracy",
+
       evaluate: () => {
 
-        const evidence = findEvidence(text, ["data","study","research"]);
+        const evidence =
+          findEvidence(
+            text,
+            ["data","study","research"]
+          );
 
-        if (text.includes("study") || text.includes("data")) {
+        if (
+          text.includes("study") ||
+          text.includes("data") ||
+          text.includes("research")
+        ) {
+
           return {
             status: "PASS",
             class: "pass",
-            explanation: "Evidence-based language detected.",
+            explanation:
+              "Evidence-based language detected.",
             evidence
           };
         }
@@ -383,7 +733,8 @@ function evaluateCRAAP() {
         return {
           status: "FAIL",
           class: "fail",
-          explanation: "No supporting evidence detected.",
+          explanation:
+            "No supporting evidence detected.",
           evidence
         };
       }
@@ -391,15 +742,25 @@ function evaluateCRAAP() {
 
     {
       name: "Purpose",
+
       evaluate: () => {
 
-        const evidence = findEvidence(text, ["buy","sale","opinion"]);
+        const evidence =
+          findEvidence(
+            text,
+            ["buy","sale","opinion"]
+          );
 
-        if (text.includes("buy")) {
+        if (
+          text.includes("buy") ||
+          text.includes("sale")
+        ) {
+
           return {
             status: "FAIL",
             class: "fail",
-            explanation: "Commercial intent detected.",
+            explanation:
+              "Commercial intent detected.",
             evidence
           };
         }
@@ -407,7 +768,8 @@ function evaluateCRAAP() {
         return {
           status: "PASS",
           class: "pass",
-          explanation: "Informational purpose detected.",
+          explanation:
+            "Informational purpose detected.",
           evidence
         };
       }
@@ -415,33 +777,62 @@ function evaluateCRAAP() {
 
   ];
 
+  /* =========================
+     BUILD RESULTS
+  ========================= */
+
   let html = "";
 
   for (let c of categories) {
+
     const r = c.evaluate();
 
     html += `
       <div class="craap-card ${r.class}">
+
         <div class="craap-header">
-          <div class="craap-title">${c.name}</div>
-          <div class="badge ${r.class}">${r.status}</div>
+
+          <div class="craap-title">
+            ${c.name}
+          </div>
+
+          <div class="badge ${r.class}">
+            ${r.status}
+          </div>
+
         </div>
 
         <div class="section">
-          <div class="label">Evaluation</div>
-          <div class="text">${r.explanation}</div>
+
+          <div class="label">
+            Evaluation
+          </div>
+
+          <div class="text">
+            ${r.explanation}
+          </div>
+
         </div>
 
         <div class="section">
-          <div class="label">Evidence</div>
-          <div class="evidence-box">${r.evidence}</div>
+
+          <div class="label">
+            Evidence
+          </div>
+
+          <div class="evidence-box">
+            ${r.evidence}
+          </div>
+
         </div>
+
       </div>
     `;
   }
 
   document.getElementById("output").innerHTML = html;
 }
+
 </script>
 
 </body>
