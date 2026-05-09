@@ -1,17 +1,108 @@
-<input id="author" placeholder="Author">
-<input id="date" type="date">
-<input id="publisher" placeholder="Publisher">
-<textarea id="article"></textarea>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CRAAP Analyzer - Article Info</title>
 
-<button onclick="saveArticle()">Finish</button>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    textarea {
+      height: 200px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Step 2: Article Information</h1>
+
+  <label>Author Name</label>
+  <input id="author" placeholder="Enter author's name">
+
+  <label>Date of Publication</label>
+  <input id="date" type="date">
+
+  <label>Publisher</label>
+  <input id="publisher" placeholder="e.g., BBC, NY Times, Nature">
+
+  <label>Full Article Text</label>
+  <textarea id="article" placeholder="Paste the full article here..."></textarea>
+
+  <button onclick="saveArticle()">Analyze Article</button>
+</div>
 
 <script>
 function saveArticle() {
-  localStorage.setItem("author", document.getElementById("author").value);
-  localStorage.setItem("date", document.getElementById("date").value);
-  localStorage.setItem("publisher", document.getElementById("publisher").value);
-  localStorage.setItem("article", document.getElementById("article").value);
+  const author = document.getElementById("author").value;
+  const date = document.getElementById("date").value;
+  const publisher = document.getElementById("publisher").value;
+  const article = document.getElementById("article").value;
 
+  // Simple validation
+  if (!author || !date || !publisher || !article) {
+    alert("Please fill in all fields before continuing.");
+    return;
+  }
+
+  // Save to localStorage
+  localStorage.setItem("author", author);
+  localStorage.setItem("date", date);
+  localStorage.setItem("publisher", publisher);
+  localStorage.setItem("article", article);
+
+  // Go to results page
   window.location.href = "index.html";
 }
 </script>
+
+</body>
+</html>
