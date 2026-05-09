@@ -70,75 +70,79 @@ function analyzeCRAAP() {
   const publisher = localStorage.getItem("publisher") || "";
   const article = localStorage.getItem("article") || "";
 
-  let scores = {
-    currency: 0,
-    relevance: 0,
-    authority: 0,
-    accuracy: 0,
-    purpose: 0
+  let results = {
+    currency: "",
+    relevance: "",
+    authority: "",
+    accuracy: "",
+    purpose: ""
   };
 
-  // Currency
+  // ✅ Currency
   if (date) {
     const year = new Date(date).getFullYear();
     const currentYear = new Date().getFullYear();
-    scores.currency = Math.max(0, 10 - (currentYear - year));
+    const diff = currentYear - year;
+
+    if (diff <= 2) results.currency = "PASS ✅";
+    else if (diff <= 5) results.currency = "CAUTION ⚠️";
+    else results.currency = "FAIL ❌";
   }
 
-  // Relevance
+  // ✅ Relevance
   if (topic && article.toLowerCase().includes(topic.toLowerCase())) {
-    scores.relevance = 8;
+    results.relevance = "PASS ✅";
   } else {
-    scores.relevance = 4;
+    results.relevance = "CAUTION ⚠️";
   }
 
-  // Authority
+  // ✅ Authority
   const trusted = ["bbc", "ny times", "nature", "cnn", "reuters"];
   if (trusted.some(p => publisher.toLowerCase().includes(p))) {
-    scores.authority = 9;
+    results.authority = "PASS ✅";
+  } else if (author) {
+    results.authority = "CAUTION ⚠️";
   } else {
-    scores.authority = 5;
+    results.authority = "FAIL ❌";
   }
 
-  // Accuracy
-  scores.accuracy = article.length > 1000 ? 8 : 5;
+  // ✅ Accuracy
+  if (article.length > 1500) {
+    results.accuracy = "PASS ✅";
+  } else if (article.length > 500) {
+    results.accuracy = "CAUTION ⚠️";
+  } else {
+    results.accuracy = "FAIL ❌";
+  }
 
-  // Purpose
+  // ✅ Purpose (bias detection)
   const biasWords = ["always", "never", "worst", "best"];
   const hasBias = biasWords.some(word => article.toLowerCase().includes(word));
-  scores.purpose = hasBias ? 4 : 8;
 
-  const total = Object.values(scores).reduce((a, b) => a + b, 0);
+  if (hasBias) {
+    results.purpose = "CAUTION ⚠️";
+  } else {
+    results.purpose = "PASS ✅";
+  }
 
-  // Display results
+  // ✅ Display results
   document.getElementById("results").innerHTML = `
-    <h2>Analysis Summary</h2>
+    <h2>CRAAP Evaluation</h2>
 
     <p><strong>Topic:</strong> ${topic}</p>
     <p><strong>Author:</strong> ${author}</p>
     <p><strong>Publisher:</strong> ${publisher}</p>
 
-    <h3>Scores (out of 10)</h3>
+    <h3>Results</h3>
     <ul>
-      <li>Currency: ${scores.currency}</li>
-      <li>Relevance: ${scores.relevance}</li>
-      <li>Authority: ${scores.authority}</li>
-      <li>Accuracy: ${scores.accuracy}</li>
-      <li>Purpose: ${scores.purpose}</li>
+      <li><strong>Currency:</strong> ${results.currency}</li>
+      <li><strong>Relevance:</strong> ${results.relevance}</li>
+      <li><strong>Authority:</strong> ${results.authority}</li>
+      <li><strong>Accuracy:</strong> ${results.accuracy}</li>
+      <li><strong>Purpose:</strong> ${results.purpose}</li>
     </ul>
-
-    <h3>Total Score: ${total}/50</h3>
   `;
-}
-
-// Reset button
-function resetApp() {
-  localStorage.clear();
-  window.location.href = "topic.html";
 }
 
 window.onload = analyzeCRAAP;
 </script>
-
-</body>
-</html>
