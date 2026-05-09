@@ -60,42 +60,116 @@ function analyzeCRAAP() {
   const field = localStorage.getItem("field") || "";
 
   let results = {};
-  let score = 0;
+
+  function setResult(key, status, explanation) {
+    results[key] = `${status}<br><small>${explanation}</small>`;
+  }
 
   switch(field) {
 
+    /* ---------- STEM ---------- */
     case "stem":
-      results.currency = (new Date().getFullYear() - new Date(date).getFullYear() <= 5) ? "PASS ✅" : "FAIL ❌";
-      results.authority = publisher.includes("journal") ? "PASS ✅" : "CAUTION ⚠️";
-      results.accuracy = article.length > 1200 ? "PASS ✅" : "FAIL ❌";
+      let yearDiff = date ? new Date().getFullYear() - new Date(date).getFullYear() : null;
+
+      if (yearDiff !== null && yearDiff <= 5) {
+        setResult("currency", "PASS ✅", "Recent research is critical in STEM fields (≤5 years).");
+      } else {
+        setResult("currency", "FAIL ❌", "STEM sources must be recent due to rapid advancements.");
+      }
+
+      if (publisher.toLowerCase().includes("journal") || publisher.toLowerCase().includes("university")) {
+        setResult("authority", "PASS ✅", "Published by a research institution or journal.");
+      } else {
+        setResult("authority", "CAUTION ⚠️", "Not clearly a peer-reviewed or academic source.");
+      }
+
+      if (article.length > 1200) {
+        setResult("accuracy", "PASS ✅", "Detailed content suggests data and methodology.");
+      } else {
+        setResult("accuracy", "FAIL ❌", "Too short to demonstrate rigorous scientific evidence.");
+      }
       break;
 
+
+    /* ---------- SOCIAL SCIENCES ---------- */
     case "social":
-      results.relevance = article.toLowerCase().includes(topic.toLowerCase()) ? "PASS ✅" : "FAIL ❌";
-      results.authority = author ? "PASS ✅" : "CAUTION ⚠️";
-      results.purpose = article.includes("always") ? "FAIL ❌" : "PASS ✅";
+      if (topic && article.toLowerCase().includes(topic.toLowerCase())) {
+        setResult("relevance", "PASS ✅", "Directly addresses the research topic.");
+      } else {
+        setResult("relevance", "FAIL ❌", "Does not clearly connect to the research focus.");
+      }
+
+      if (author) {
+        setResult("authority", "PASS ✅", "Named author provides accountability and credibility.");
+      } else {
+        setResult("authority", "CAUTION ⚠️", "Missing author reduces credibility.");
+      }
+
+      if (article.match(/always|never|propaganda|bias/i)) {
+        setResult("purpose", "FAIL ❌", "Contains signs of ideological bias.");
+      } else {
+        setResult("purpose", "PASS ✅", "No obvious bias detected.");
+      }
       break;
 
+
+    /* ---------- HUMANITIES ---------- */
     case "humanities":
-      results.currency = "NOT IMPORTANT 📚";
-      results.authority = article.includes("letter") ? "PASS ✅ (Primary)" : "CAUTION ⚠️";
-      results.accuracy = article.length > 500 ? "PASS ✅" : "CAUTION ⚠️";
+      setResult("currency", "PASS ✅", "Older sources are valuable in humanities research.");
+
+      if (article.match(/letter|diary|original/i)) {
+        setResult("authority", "PASS ✅", "Appears to include or reference primary sources.");
+      } else {
+        setResult("authority", "CAUTION ⚠️", "Likely a secondary interpretation of events.");
+      }
+
+      if (article.length > 500) {
+        setResult("accuracy", "PASS ✅", "Includes enough content to support interpretation.");
+      } else {
+        setResult("accuracy", "CAUTION ⚠️", "Limited evidence for strong interpretation.");
+      }
       break;
 
+
+    /* ---------- BUSINESS ---------- */
     case "business":
-      results.currency = (new Date().getFullYear() - new Date(date).getFullYear() <= 1) ? "PASS ✅" : "FAIL ❌";
-      results.purpose = article.includes("buy") ? "CAUTION ⚠️" : "PASS ✅";
+      let diff = date ? new Date().getFullYear() - new Date(date).getFullYear() : null;
+
+      if (diff !== null && diff <= 1) {
+        setResult("currency", "PASS ✅", "Business data must be very recent.");
+      } else {
+        setResult("currency", "FAIL ❌", "Outdated information may misrepresent market conditions.");
+      }
+
+      if (article.match(/buy|sale|advertisement/i)) {
+        setResult("purpose", "CAUTION ⚠️", "Content may be trying to sell or promote.");
+      } else {
+        setResult("purpose", "PASS ✅", "Appears informational rather than promotional.");
+      }
       break;
 
+
+    /* ---------- NEWS ---------- */
     case "news":
-      results.accuracy = article.length > 800 ? "PASS ✅" : "CAUTION ⚠️";
-      results.purpose = article.includes("shocking") ? "FAIL ❌" : "PASS ✅";
+      if (article.length > 800) {
+        setResult("accuracy", "PASS ✅", "Sufficient detail suggests supported reporting.");
+      } else {
+        setResult("accuracy", "CAUTION ⚠️", "Short articles may lack full verification.");
+      }
+
+      if (article.match(/shocking|unbelievable|sensational/i)) {
+        setResult("purpose", "FAIL ❌", "Language suggests sensationalism.");
+      } else {
+        setResult("purpose", "PASS ✅", "Neutral tone indicates objective reporting.");
+      }
       break;
   }
 
-  // Fill missing
+  // Fill missing categories
   ["currency","relevance","authority","accuracy","purpose"].forEach(k => {
-    if (!results[k]) results[k] = "CAUTION ⚠️";
+    if (!results[k]) {
+      setResult(k, "CAUTION ⚠️", "Insufficient data to evaluate this category.");
+    }
   });
 
   document.getElementById("results").innerHTML = `
@@ -104,11 +178,11 @@ function analyzeCRAAP() {
     <p><strong>Publisher:</strong> ${publisher}</p>
 
     <ul>
-      <li><b>Currency:</b> ${results.currency}</li>
-      <li><b>Relevance:</b> ${results.relevance}</li>
-      <li><b>Authority:</b> ${results.authority}</li>
-      <li><b>Accuracy:</b> ${results.accuracy}</li>
-      <li><b>Purpose:</b> ${results.purpose}</li>
+      <li><b>Currency:</b><br>${results.currency}</li><br>
+      <li><b>Relevance:</b><br>${results.relevance}</li><br>
+      <li><b>Authority:</b><br>${results.authority}</li><br>
+      <li><b>Accuracy:</b><br>${results.accuracy}</li><br>
+      <li><b>Purpose:</b><br>${results.purpose}</li>
     </ul>
   `;
 }
