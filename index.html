@@ -300,25 +300,146 @@ function evaluateCRAAP() {
 
   const credible = ["new york times","washington post","bbc","reuters","cnn","nature"];
 
-  const categories = [
-    {
-      name:"Currency",
-      evaluate: () => !year
-        ? {status:"CAUTION",class:"caution",explanation:"No date",evidence:date}
-        : age <= maxAge
-          ? {status:"PASS",class:"pass",explanation:"Recent enough",evidence:date}
-          : {status:"FAIL",class:"fail",explanation:"Too old",evidence:date}
-    },
-    {
-      name:"Authority",
-      evaluate: () => ({
-        status: !author ? "CAUTION" : credible.some(c=>publisher.includes(c)) ? "PASS" : "CAUTION",
-        class: !author ? "caution" : credible.some(c=>publisher.includes(c)) ? "pass" : "caution",
-        explanation: "Author/publisher check",
-        evidence: `Author: ${author || "N/A"} | Publisher: ${publisher || "N/A"}`
-      })
+ const categories = [
+
+  {
+    name: "Currency",
+    evaluate: () => {
+
+      if (!year) {
+        return {
+          status: "CAUTION",
+          class: "caution",
+          explanation: "Publication date not clearly provided.",
+          evidence: date || "No date provided"
+        };
+      }
+
+      const age = currentYear - year;
+
+      return age <= maxAge
+        ? {
+            status: "PASS",
+            class: "pass",
+            explanation: `Published in ${year}, acceptable for ${field}.`,
+            evidence: date
+          }
+        : {
+            status: "FAIL",
+            class: "fail",
+            explanation: `Published in ${year}, too old for ${field}.`,
+            evidence: date
+          };
     }
-  ];
+  },
+
+  {
+    name: "Authority",
+    evaluate: () => {
+
+      const evidence =
+        `Author: ${author || "Not found"} | Publisher: ${publisher || "Not provided"}`;
+
+      if (!author) {
+        return {
+          status: "CAUTION",
+          class: "caution",
+          explanation: "No author provided.",
+          evidence
+        };
+      }
+
+      if (credible.some(c => publisher.includes(c))) {
+        return {
+          status: "PASS",
+          class: "pass",
+          explanation: "Credible publisher + author provided.",
+          evidence
+        };
+      }
+
+      return {
+        status: "CAUTION",
+        class: "caution",
+        explanation: "Author present but publisher credibility unclear.",
+        evidence
+      };
+    }
+  },
+
+  {
+    name: "Relevance",
+    evaluate: () => {
+
+      const evidence = topic
+        ? findEvidence(text, [topic])
+        : "No topic provided.";
+
+      return (topic && text.includes(topic))
+        ? {
+            status: "PASS",
+            class: "pass",
+            explanation: "Direct relevance to topic found.",
+            evidence
+          }
+        : {
+            status: "FAIL",
+            class: "fail",
+            explanation: "No clear relevance to topic.",
+            evidence
+          };
+    }
+  },
+
+  {
+    name: "Accuracy",
+    evaluate: () => {
+
+      const evidence = findEvidence(text, ["data", "study", "research"]);
+
+      return (
+        text.includes("study") ||
+        text.includes("data") ||
+        text.includes("research")
+      )
+        ? {
+            status: "PASS",
+            class: "pass",
+            explanation: "Evidence-based language detected.",
+            evidence
+          }
+        : {
+            status: "FAIL",
+            class: "fail",
+            explanation: "No supporting evidence detected.",
+            evidence
+          };
+    }
+  },
+
+  {
+    name: "Purpose",
+    evaluate: () => {
+
+      const evidence = findEvidence(text, ["buy", "sale", "opinion"]);
+
+      return (text.includes("buy") || text.includes("sale"))
+        ? {
+            status: "FAIL",
+            class: "fail",
+            explanation: "Commercial intent detected.",
+            evidence
+          }
+        : {
+            status: "PASS",
+            class: "pass",
+            explanation: "Informational purpose detected.",
+            evidence
+          };
+    }
+  }
+
+];
 
   let html = "";
 
