@@ -1,64 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CRAAP Test Results</title>
+<meta charset="UTF-8">
+<title>CRAAP Results</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      padding: 20px;
-    }
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 20px;
+  }
 
-    .container {
-      max-width: 700px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+  .container {
+    max-width: 700px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+  }
 
-    h1, h2 {
-      text-align: center;
-    }
+  h1, h2 {
+    text-align: center;
+  }
 
-    .result {
-      margin-top: 20px;
-      padding: 15px;
-      background: #eef;
-      border-radius: 8px;
-    }
+  .result {
+    margin-top: 20px;
+    padding: 15px;
+    background: #eef;
+    border-radius: 8px;
+  }
 
-    ul {
-      padding-left: 20px;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px;
-      width: 100%;
-      background-color: #d9534f;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #c9302c;
-    }
-  </style>
+  button {
+    margin-top: 20px;
+    padding: 10px;
+    width: 100%;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+</style>
 </head>
 
 <body>
 
 <div class="container">
-  <h1>CRAAP Test Results</h1>
+  <h1>CRAAP Results</h1>
   <div id="results" class="result"></div>
-
   <button onclick="resetApp()">Start Over</button>
 </div>
 
@@ -66,83 +54,72 @@
 function analyzeCRAAP() {
   const topic = localStorage.getItem("topic") || "";
   const author = localStorage.getItem("author") || "";
-  const date = localStorage.getItem("date") || "";
   const publisher = localStorage.getItem("publisher") || "";
+  const date = localStorage.getItem("date") || "";
   const article = localStorage.getItem("article") || "";
+  const field = localStorage.getItem("field") || "";
 
-  let results = {
-    currency: "",
-    relevance: "",
-    authority: "",
-    accuracy: "",
-    purpose: ""
-  };
+  let results = {};
+  let score = 0;
 
-  // ✅ Currency
-  if (date) {
-    const year = new Date(date).getFullYear();
-    const currentYear = new Date().getFullYear();
-    const diff = currentYear - year;
+  switch(field) {
 
-    if (diff <= 2) results.currency = "PASS ✅";
-    else if (diff <= 5) results.currency = "CAUTION ⚠️";
-    else results.currency = "FAIL ❌";
+    case "stem":
+      results.currency = (new Date().getFullYear() - new Date(date).getFullYear() <= 5) ? "PASS ✅" : "FAIL ❌";
+      results.authority = publisher.includes("journal") ? "PASS ✅" : "CAUTION ⚠️";
+      results.accuracy = article.length > 1200 ? "PASS ✅" : "FAIL ❌";
+      break;
+
+    case "social":
+      results.relevance = article.toLowerCase().includes(topic.toLowerCase()) ? "PASS ✅" : "FAIL ❌";
+      results.authority = author ? "PASS ✅" : "CAUTION ⚠️";
+      results.purpose = article.includes("always") ? "FAIL ❌" : "PASS ✅";
+      break;
+
+    case "humanities":
+      results.currency = "NOT IMPORTANT 📚";
+      results.authority = article.includes("letter") ? "PASS ✅ (Primary)" : "CAUTION ⚠️";
+      results.accuracy = article.length > 500 ? "PASS ✅" : "CAUTION ⚠️";
+      break;
+
+    case "business":
+      results.currency = (new Date().getFullYear() - new Date(date).getFullYear() <= 1) ? "PASS ✅" : "FAIL ❌";
+      results.purpose = article.includes("buy") ? "CAUTION ⚠️" : "PASS ✅";
+      break;
+
+    case "news":
+      results.accuracy = article.length > 800 ? "PASS ✅" : "CAUTION ⚠️";
+      results.purpose = article.includes("shocking") ? "FAIL ❌" : "PASS ✅";
+      break;
   }
 
-  // ✅ Relevance
-  if (topic && article.toLowerCase().includes(topic.toLowerCase())) {
-    results.relevance = "PASS ✅";
-  } else {
-    results.relevance = "CAUTION ⚠️";
-  }
+  // Fill missing
+  ["currency","relevance","authority","accuracy","purpose"].forEach(k => {
+    if (!results[k]) results[k] = "CAUTION ⚠️";
+  });
 
-  // ✅ Authority
-  const trusted = ["bbc", "ny times", "nature", "cnn", "reuters"];
-  if (trusted.some(p => publisher.toLowerCase().includes(p))) {
-    results.authority = "PASS ✅";
-  } else if (author) {
-    results.authority = "CAUTION ⚠️";
-  } else {
-    results.authority = "FAIL ❌";
-  }
-
-  // ✅ Accuracy
-  if (article.length > 1500) {
-    results.accuracy = "PASS ✅";
-  } else if (article.length > 500) {
-    results.accuracy = "CAUTION ⚠️";
-  } else {
-    results.accuracy = "FAIL ❌";
-  }
-
-  // ✅ Purpose (bias detection)
-  const biasWords = ["always", "never", "worst", "best"];
-  const hasBias = biasWords.some(word => article.toLowerCase().includes(word));
-
-  if (hasBias) {
-    results.purpose = "CAUTION ⚠️";
-  } else {
-    results.purpose = "PASS ✅";
-  }
-
-  // ✅ Display results
   document.getElementById("results").innerHTML = `
-    <h2>CRAAP Evaluation</h2>
-
+    <p><strong>Field:</strong> ${field}</p>
     <p><strong>Topic:</strong> ${topic}</p>
-    <p><strong>Author:</strong> ${author}</p>
     <p><strong>Publisher:</strong> ${publisher}</p>
 
-    <h3>Results</h3>
     <ul>
-      <li><strong>Currency:</strong> ${results.currency}</li>
-      <li><strong>Relevance:</strong> ${results.relevance}</li>
-      <li><strong>Authority:</strong> ${results.authority}</li>
-      <li><strong>Accuracy:</strong> ${results.accuracy}</li>
-      <li><strong>Purpose:</strong> ${results.purpose}</li>
+      <li><b>Currency:</b> ${results.currency}</li>
+      <li><b>Relevance:</b> ${results.relevance}</li>
+      <li><b>Authority:</b> ${results.authority}</li>
+      <li><b>Accuracy:</b> ${results.accuracy}</li>
+      <li><b>Purpose:</b> ${results.purpose}</li>
     </ul>
   `;
 }
 
+function resetApp() {
+  localStorage.clear();
+  window.location.href = "index.html";
+}
+
 window.onload = analyzeCRAAP;
 </script>
+
+</body>
+</html>
