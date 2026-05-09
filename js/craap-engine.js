@@ -1,3 +1,4 @@
+
 function getMaxAge(field) {
   return FIELD_RULES[field] || 10;
 }
@@ -15,14 +16,7 @@ function evaluateCurrency(year, field, currentYear) {
 
 function evaluateAuthority(author, publisher) {
 
-  const credible = [
-    "new york times",
-    "washington post",
-    "bbc",
-    "reuters",
-    "cnn",
-    "nature"
-  ];
+  const credible = ["new york times","washington post","bbc","reuters","cnn","nature"];
 
   if (!author) return "FAIL";
   if (credible.some(c => publisher.includes(c))) return "PASS";
@@ -47,7 +41,6 @@ function evaluatePurpose(text) {
   return "PASS";
 }
 
-// expose globally
 window.CRAAP_ENGINE = {
   evaluateCurrency,
   evaluateAuthority,
