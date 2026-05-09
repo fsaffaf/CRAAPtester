@@ -12,14 +12,14 @@
   }
 
   .container {
-    max-width: 700px;
+    max-width: 750px;
     margin: auto;
     background: white;
     padding: 20px;
     border-radius: 10px;
   }
 
-  h1, h2 {
+  h1 {
     text-align: center;
   }
 
@@ -28,6 +28,14 @@
     padding: 15px;
     background: #eef;
     border-radius: 8px;
+  }
+
+  .section {
+    margin-bottom: 15px;
+  }
+
+  small {
+    color: #555;
   }
 
   button {
@@ -52,6 +60,7 @@
 
 <script>
 function analyzeCRAAP() {
+
   const topic = localStorage.getItem("topic") || "";
   const author = localStorage.getItem("author") || "";
   const publisher = localStorage.getItem("publisher") || "";
@@ -62,128 +71,182 @@ function analyzeCRAAP() {
   let results = {};
 
   function setResult(key, status, explanation) {
-    results[key] = `${status}<br><small>${explanation}</small>`;
+    results[key] = `
+      <strong>${status}</strong><br>
+      <small>${explanation}</small>
+    `;
   }
+
+  /* =========================
+     CALCULATE YEARS
+  ========================= */
+
+  let yearDiff = null;
+  if (date) {
+    yearDiff = new Date().getFullYear() - new Date(date).getFullYear();
+  }
+
+  /* =========================
+     CURRENCY (YOUR RULES)
+  ========================= */
 
   switch(field) {
 
-    /* ---------- STEM ---------- */
-    case "stem":
-      let yearDiff = date ? new Date().getFullYear() - new Date(date).getFullYear() : null;
-
-      if (yearDiff !== null && yearDiff <= 5) {
-        setResult("currency", "PASS ✅", "Recent research is critical in STEM fields (≤5 years).");
+    case "medical":
+      if (yearDiff <= 4) {
+        setResult("currency", "PASS ✅", "Medical sources must be very recent (0–4 years).");
+      } else if (yearDiff === 5) {
+        setResult("currency", "CAUTION ⚠️", "5-year-old medical sources may be slightly outdated.");
       } else {
-        setResult("currency", "FAIL ❌", "STEM sources must be recent due to rapid advancements.");
-      }
-
-      if (publisher.toLowerCase().includes("journal") || publisher.toLowerCase().includes("university")) {
-        setResult("authority", "PASS ✅", "Published by a research institution or journal.");
-      } else {
-        setResult("authority", "CAUTION ⚠️", "Not clearly a peer-reviewed or academic source.");
-      }
-
-      if (article.length > 1200) {
-        setResult("accuracy", "PASS ✅", "Detailed content suggests data and methodology.");
-      } else {
-        setResult("accuracy", "FAIL ❌", "Too short to demonstrate rigorous scientific evidence.");
+        setResult("currency", "FAIL ❌", "Medical research older than 5 years is often unreliable.");
       }
       break;
 
+    case "physics":
+      setResult("currency", "PASS ✅", "Physics allows older foundational sources (no time limit).");
+      break;
 
-    /* ---------- SOCIAL SCIENCES ---------- */
-    case "social":
-      if (topic && article.toLowerCase().includes(topic.toLowerCase())) {
-        setResult("relevance", "PASS ✅", "Directly addresses the research topic.");
+    case "engineering":
+      if (yearDiff <= 4) {
+        setResult("currency", "PASS ✅", "Recent engineering data (≤4 years) is preferred.");
+      } else if (yearDiff <= 15) {
+        setResult("currency", "CAUTION ⚠️", "Moderately old engineering info may still apply.");
       } else {
-        setResult("relevance", "FAIL ❌", "Does not clearly connect to the research focus.");
-      }
-
-      if (author) {
-        setResult("authority", "PASS ✅", "Named author provides accountability and credibility.");
-      } else {
-        setResult("authority", "CAUTION ⚠️", "Missing author reduces credibility.");
-      }
-
-      if (article.match(/always|never|propaganda|bias/i)) {
-        setResult("purpose", "FAIL ❌", "Contains signs of ideological bias.");
-      } else {
-        setResult("purpose", "PASS ✅", "No obvious bias detected.");
+        setResult("currency", "FAIL ❌", "Engineering data over 15 years old is outdated.");
       }
       break;
 
+    case "cs":
+      if (yearDiff <= 4) {
+        setResult("currency", "PASS ✅", "Computer science evolves quickly; recent sources required.");
+      } else if (yearDiff === 5) {
+        setResult("currency", "CAUTION ⚠️", "5-year-old computing information may be outdated.");
+      } else {
+        setResult("currency", "FAIL ❌", "Older computing data becomes obsolete quickly.");
+      }
+      break;
 
-    /* ---------- HUMANITIES ---------- */
+    case "psychology":
+      if (yearDiff <= 4) {
+        setResult("currency", "PASS ✅", "Recent psychology research (≤4 years) is ideal.");
+      } else if (yearDiff <= 10) {
+        setResult("currency", "CAUTION ⚠️", "Moderately old studies may still be valid.");
+      } else {
+        setResult("currency", "FAIL ❌", "Older psychology research may not reflect current findings.");
+      }
+      break;
+
+    case "anthropology":
+      setResult("currency", "PASS ✅", "Anthropology values sources regardless of age.");
+      break;
+
+    case "economics":
+      if (yearDiff <= 5) {
+        setResult("currency", "PASS ✅", "Economic data should be relatively recent (≤5 years).");
+      } else if (yearDiff <= 10) {
+        setResult("currency", "CAUTION ⚠️", "Older economic trends may still provide insight.");
+      } else {
+        setResult("currency", "FAIL ❌", "Outdated economic data may misrepresent conditions.");
+      }
+      break;
+
+    case "political":
+      if (yearDiff <= 5) {
+        setResult("currency", "PASS ✅", "Recent political data is important.");
+      } else if (yearDiff <= 15) {
+        setResult("currency", "CAUTION ⚠️", "Older political analysis may still be useful.");
+      } else {
+        setResult("currency", "FAIL ❌", "Very old political sources may not apply today.");
+      }
+      break;
+
     case "humanities":
-      setResult("currency", "PASS ✅", "Older sources are valuable in humanities research.");
-
-      if (article.match(/letter|diary|original/i)) {
-        setResult("authority", "PASS ✅", "Appears to include or reference primary sources.");
-      } else {
-        setResult("authority", "CAUTION ⚠️", "Likely a secondary interpretation of events.");
-      }
-
-      if (article.length > 500) {
-        setResult("accuracy", "PASS ✅", "Includes enough content to support interpretation.");
-      } else {
-        setResult("accuracy", "CAUTION ⚠️", "Limited evidence for strong interpretation.");
-      }
+      setResult("currency", "PASS ✅", "Humanities value older and foundational works.");
       break;
 
-
-    /* ---------- BUSINESS ---------- */
-    case "business":
-      let diff = date ? new Date().getFullYear() - new Date(date).getFullYear() : null;
-
-      if (diff !== null && diff <= 1) {
-        setResult("currency", "PASS ✅", "Business data must be very recent.");
-      } else {
-        setResult("currency", "FAIL ❌", "Outdated information may misrepresent market conditions.");
-      }
-
-      if (article.match(/buy|sale|advertisement/i)) {
-        setResult("purpose", "CAUTION ⚠️", "Content may be trying to sell or promote.");
-      } else {
-        setResult("purpose", "PASS ✅", "Appears informational rather than promotional.");
-      }
-      break;
-
-
-    /* ---------- NEWS ---------- */
     case "news":
-      if (article.length > 800) {
-        setResult("accuracy", "PASS ✅", "Sufficient detail suggests supported reporting.");
+      if (yearDiff === 0) {
+        setResult("currency", "PASS ✅", "News must be extremely current (months old).");
+      } else if (yearDiff === 1) {
+        setResult("currency", "CAUTION ⚠️", "Slightly older news may still be relevant.");
       } else {
-        setResult("accuracy", "CAUTION ⚠️", "Short articles may lack full verification.");
-      }
-
-      if (article.match(/shocking|unbelievable|sensational/i)) {
-        setResult("purpose", "FAIL ❌", "Language suggests sensationalism.");
-      } else {
-        setResult("purpose", "PASS ✅", "Neutral tone indicates objective reporting.");
+        setResult("currency", "FAIL ❌", "News over 1 year old is outdated.");
       }
       break;
+
+    case "business":
+      if (yearDiff <= 2) {
+        setResult("currency", "PASS ✅", "Business data must be recent (≤2 years).");
+      } else if (yearDiff <= 5) {
+        setResult("currency", "CAUTION ⚠️", "Older business data may be risky.");
+      } else {
+        setResult("currency", "FAIL ❌", "Outdated business info can mislead decisions.");
+      }
+      break;
+
+    case "government":
+      if (yearDiff <= 1) {
+        setResult("currency", "PASS ✅", "Current laws and policies are required.");
+      } else {
+        setResult("currency", "FAIL ❌", "Old laws may no longer apply.");
+      }
+      break;
+
+    default:
+      setResult("currency", "CAUTION ⚠️", "No specific rule for this field.");
   }
 
-  // Fill missing categories
-  ["currency","relevance","authority","accuracy","purpose"].forEach(k => {
-    if (!results[k]) {
-      setResult(k, "CAUTION ⚠️", "Insufficient data to evaluate this category.");
-    }
-  });
+  /* =========================
+     OTHER CRAAP COMPONENTS
+  ========================= */
+
+  // Relevance
+  if (topic && article.toLowerCase().includes(topic.toLowerCase())) {
+    setResult("relevance", "PASS ✅", "The article clearly relates to the topic.");
+  } else {
+    setResult("relevance", "CAUTION ⚠️", "The article may not strongly match the topic.");
+  }
+
+  // Authority
+  if (author) {
+    setResult("authority", "PASS ✅", "Author is identified, improving credibility.");
+  } else {
+    setResult("authority", "CAUTION ⚠️", "Missing author reduces trustworthiness.");
+  }
+
+  // Accuracy
+  if (article.length > 1000) {
+    setResult("accuracy", "PASS ✅", "Longer content suggests evidence and development.");
+  } else if (article.length > 500) {
+    setResult("accuracy", "CAUTION ⚠️", "Moderate detail, but may lack depth.");
+  } else {
+    setResult("accuracy", "FAIL ❌", "Too little content to verify accuracy.");
+  }
+
+  // Purpose (bias detection)
+  if (article.match(/always|never|worst|best|shocking|unbelievable/i)) {
+    setResult("purpose", "CAUTION ⚠️", "Strong or emotional language suggests bias.");
+  } else {
+    setResult("purpose", "PASS ✅", "Neutral tone suggests informational purpose.");
+  }
+
+  /* =========================
+     DISPLAY
+  ========================= */
 
   document.getElementById("results").innerHTML = `
-    <p><strong>Field:</strong> ${field}</p>
-    <p><strong>Topic:</strong> ${topic}</p>
-    <p><strong>Publisher:</strong> ${publisher}</p>
+    <div class="section"><strong>Field:</strong> ${field}</div>
+    <div class="section"><strong>Topic:</strong> ${topic}</div>
+    <div class="section"><strong>Publisher:</strong> ${publisher}</div>
+    <div class="section"><strong>Years Old:</strong> ${yearDiff ?? "N/A"}</div>
 
-    <ul>
-      <li><b>Currency:</b><br>${results.currency}</li><br>
-      <li><b>Relevance:</b><br>${results.relevance}</li><br>
-      <li><b>Authority:</b><br>${results.authority}</li><br>
-      <li><b>Accuracy:</b><br>${results.accuracy}</li><br>
-      <li><b>Purpose:</b><br>${results.purpose}</li>
-    </ul>
+    <hr>
+
+    <div class="section"><b>Currency:</b><br>${results.currency}</div>
+    <div class="section"><b>Relevance:</b><br>${results.relevance}</div>
+    <div class="section"><b>Authority:</b><br>${results.authority}</div>
+    <div class="section"><b>Accuracy:</b><br>${results.accuracy}</div>
+    <div class="section"><b>Purpose:</b><br>${results.purpose}</div>
   `;
 }
 
