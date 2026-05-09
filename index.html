@@ -1,39 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CRAAP Test Input</title>
+<meta charset="UTF-8">
+<title>CRAAP Test Analyzer</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    margin: 0;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 700px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #5a67d8;
+  }
+
+  label {
+    font-weight: bold;
+  }
+</style>
 </head>
+
 <body>
 
-<h1>CRAAP Test Input</h1>
+<div class="container">
+  <h1>CRAAP Test Analyzer</h1>
 
-<label>Topic:</label><br>
-<input type="text" id="topic"><br><br>
+  <label>Topic:</label>
+  <input type="text" id="topic">
 
-<label>Author:</label><br>
-<input type="text" id="author"><br><br>
+  <label>Author:</label>
+  <input type="text" id="author">
 
-<label>Publisher:</label><br>
-<input type="text" id="publisher"><br><br>
+  <label>Publisher:</label>
+  <input type="text" id="publisher">
 
-<label>Date:</label><br>
-<input type="date" id="date"><br><br>
+  <label>Date:</label>
+  <input type="date" id="date">
 
-<label>Article Text:</label><br>
-<textarea id="article" rows="6" cols="40"></textarea><br><br>
+  <label>Field of Publication:</label>
+  <select id="field">
+    <option value="stem">Sciences (STEM/Medicine)</option>
+    <option value="social">Social Sciences</option>
+    <option value="humanities">Humanities</option>
+    <option value="business">Business & Industry</option>
+    <option value="news">News & General</option>
+  </select>
 
-<button onclick="submitData()">Analyze</button>
+  <label>Article Text:</label>
+  <textarea id="article" rows="7"></textarea>
+
+  <button onclick="submitData()">Analyze</button>
+</div>
 
 <script>
 function submitData() {
-  localStorage.setItem("topic", document.getElementById("topic").value);
+  const topic = document.getElementById("topic").value;
+  const article = document.getElementById("article").value;
+
+  if (!topic || !article) {
+    alert("Please fill in Topic and Article.");
+    return;
+  }
+
+  localStorage.setItem("topic", topic);
   localStorage.setItem("author", document.getElementById("author").value);
   localStorage.setItem("publisher", document.getElementById("publisher").value);
   localStorage.setItem("date", document.getElementById("date").value);
-  localStorage.setItem("article", document.getElementById("article").value);
+  localStorage.setItem("article", article);
+  localStorage.setItem("field", document.getElementById("field").value);
 
-  // Go to results page
   window.location.href = "results.html";
 }
 </script>
