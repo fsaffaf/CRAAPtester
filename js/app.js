@@ -1,34 +1,69 @@
+
 function render() {
-  const output = document.getElementById("app");
+  document.getElementById("app").innerHTML = `
 
-  output.innerHTML = `
-    <div>
-      <label>Field</label>
-      <select id="field"></select>
+  <div class="card input-panel">
 
-      <label>Author</label>
-      <input id="author">
+    <div class="topic-card">
 
-      <label>Publisher</label>
-      <input id="publisher">
+      <h2 class="section-title">Your Research Topic</h2>
 
-      <label>Date</label>
-      <input id="date">
+      <div class="form-row">
+        <label>Topic</label>
+        <input id="topic" placeholder="e.g., climate change, AI" />
+      </div>
 
-      <label>Topic</label>
-      <input id="topic">
-
-      <label>Article</label>
-      <textarea id="text"></textarea>
-
-      <button onclick="run()">Evaluate</button>
-
-      <div id="results"></div>
     </div>
+
+    <div class="divider"></div>
+
+    <div class="article-card">
+
+      <h2 class="section-title">Article Information</h2>
+
+      <div class="form-row">
+        <label>Author</label>
+        <input id="authorInput" />
+      </div>
+
+      <div class="form-row">
+        <label>Date</label>
+        <input id="dateInput" />
+      </div>
+
+      <div class="form-row">
+        <label>Field</label>
+        <select id="field"></select>
+      </div>
+
+      <div class="form-row">
+        <label>Publisher</label>
+        <div>
+          <select id="publisherSelect"></select>
+          <input id="publisherInput" style="margin-top:10px;">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Article Text</label>
+        <textarea id="source"></textarea>
+      </div>
+
+    </div>
+
+    <button onclick="evaluateCRAAP()">Evaluate</button>
+
+    <div id="output"></div>
+
+  </div>
   `;
 
-  // populate fields
+  setupFields();
+}
+
+function setupFields() {
   const fieldSelect = document.getElementById("field");
+
   Object.keys(FIELD_RULES).forEach(f => {
     const opt = document.createElement("option");
     opt.value = f;
@@ -37,14 +72,15 @@ function render() {
   });
 }
 
-function run() {
+function evaluateCRAAP() {
 
-  const text = document.getElementById("text").value.toLowerCase();
+  const text = document.getElementById("source").value.toLowerCase();
   const field = document.getElementById("field").value;
-  const author = document.getElementById("author").value;
-  const publisher = document.getElementById("publisher").value.toLowerCase();
+
+  const author = document.getElementById("authorInput").value;
+  const date = document.getElementById("dateInput").value;
+  const publisher = document.getElementById("publisherInput").value.toLowerCase();
   const topic = document.getElementById("topic").value.toLowerCase();
-  const date = document.getElementById("date").value;
 
   const year = (date.match(/\b(19\d{2}|20\d{2})\b/) || [])[0];
   const currentYear = new Date().getFullYear();
@@ -57,10 +93,13 @@ function run() {
     Purpose: CRAAP_ENGINE.evaluatePurpose(text)
   };
 
-  document.getElementById("results").innerHTML =
-    Object.entries(results)
-      .map(([k,v]) => `<p><b>${k}:</b> ${v}</p>`)
-      .join("");
+  let html = "";
+
+  for (let [k,v] of Object.entries(results)) {
+    html += `<p><b>${k}:</b> ${v}</p>`;
+  }
+
+  document.getElementById("output").innerHTML = html;
 }
 
 window.onload = render;
