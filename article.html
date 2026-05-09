@@ -1,0 +1,17 @@
+<input id="author" placeholder="Author">
+<input id="date" type="date">
+<input id="publisher" placeholder="Publisher">
+<textarea id="article"></textarea>
+
+<button onclick="saveArticle()">Finish</button>
+
+<script>
+function saveArticle() {
+  localStorage.setItem("author", document.getElementById("author").value);
+  localStorage.setItem("date", document.getElementById("date").value);
+  localStorage.setItem("publisher", document.getElementById("publisher").value);
+  localStorage.setItem("article", document.getElementById("article").value);
+
+  window.location.href = "index.html";
+}
+</script>
