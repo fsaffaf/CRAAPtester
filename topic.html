@@ -1,0 +1,10 @@
+<input id="topic" placeholder="Enter research topic">
+<button onclick="saveTopic()">Next</button>
+
+<script>
+function saveTopic() {
+  const topic = document.getElementById("topic").value;
+  localStorage.setItem("topic", topic);
+  window.location.href = "article.html";
+}
+</script>
