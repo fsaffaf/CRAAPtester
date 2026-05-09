@@ -23,14 +23,30 @@
 
   h1 {
     text-align: center;
+    margin-bottom: 20px;
+  }
+
+  /* ✅ FORM GRID */
+  .form-group {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  label {
+    font-weight: bold;
   }
 
   input, textarea, select {
     width: 100%;
     padding: 10px;
-    margin: 8px 0 15px;
     border-radius: 6px;
     border: 1px solid #ccc;
+  }
+
+  textarea {
+    resize: vertical;
   }
 
   button {
@@ -42,14 +58,11 @@
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
+    margin-top: 10px;
   }
 
   button:hover {
     background: #5a67d8;
-  }
-
-  label {
-    font-weight: bold;
   }
 </style>
 </head>
@@ -59,31 +72,45 @@
 <div class="container">
   <h1>CRAAP Test Analyzer</h1>
 
-  <label>Topic:</label>
-  <input type="text" id="topic">
+  <div class="form-group">
+    <label>Topic:</label>
+    <input type="text" id="topic">
+  </div>
 
-  <label>Author:</label>
-  <input type="text" id="author">
+  <div class="form-group">
+    <label>Author:</label>
+    <input type="text" id="author">
+  </div>
 
-  <label>Publisher:</label>
-  <input type="text" id="publisher">
+  <!-- ✅ DATE MOVED UNDER AUTHOR -->
+  <div class="form-group">
+    <label>Date:</label>
+    <input type="date" id="date">
+  </div>
 
-  <label>Date:</label>
-  <input type="date" id="date">
+  <div class="form-group">
+    <label>Publisher:</label>
+    <input type="text" id="publisher">
+  </div>
 
-  <label>Field of Publication:</label>
-  <select id="field">
-    <option value="stem">Sciences (STEM/Medicine)</option>
-    <option value="social">Social Sciences</option>
-    <option value="humanities">Humanities</option>
-    <option value="business">Business & Industry</option>
-    <option value="news">News & General</option>
-  </select>
+  <div class="form-group">
+    <label>Field:</label>
+    <select id="field">
+      <option value="stem">Sciences (STEM/Medicine)</option>
+      <option value="social">Social Sciences</option>
+      <option value="humanities">Humanities</option>
+      <option value="business">Business & Industry</option>
+      <option value="news">News & General</option>
+    </select>
+  </div>
 
-  <label>Article Text:</label>
-  <textarea id="article" rows="7"></textarea>
+  <div class="form-group">
+    <label>Article:</label>
+    <textarea id="article" rows="6"></textarea>
+  </div>
 
   <button onclick="submitData()">Analyze</button>
+
 </div>
 
 <script>
@@ -98,8 +125,8 @@ function submitData() {
 
   localStorage.setItem("topic", topic);
   localStorage.setItem("author", document.getElementById("author").value);
-  localStorage.setItem("publisher", document.getElementById("publisher").value);
   localStorage.setItem("date", document.getElementById("date").value);
+  localStorage.setItem("publisher", document.getElementById("publisher").value);
   localStorage.setItem("article", article);
   localStorage.setItem("field", document.getElementById("field").value);
 
