@@ -85,11 +85,17 @@
     <input type="text" id="author">
   </div>
 
-  <!-- ✅ DATE MOVED UNDER AUTHOR -->
-  <div class="form-group">
-    <label>Date:</label>
+<div class="form-group">
+  <label>Date:</label>
+  <div>
     <input type="date" id="date">
+    <div style="margin-top: 6px;">
+      <label style="font-weight: normal;">
+        <input type="checkbox" id="noDate" onclick="toggleDate()"> No date provided
+      </label>
+    </div>
   </div>
+</div>
 
   <div class="form-group">
     <label>Publisher:</label>
@@ -137,7 +143,18 @@
 </div>
 
 <script>
-function submitData() {
+function toggleDate() {
+  const dateInput = document.getElementById("date");
+  const noDateCheckbox = document.getElementById("noDate");
+
+  if (noDateCheckbox.checked) {
+    dateInput.value = "";
+    dateInput.disabled = true;
+  } else {
+    dateInput.disabled = false;
+  }
+}
+  function submitData() {
   const topic = document.getElementById("topic").value;
   const article = document.getElementById("article").value;
 
@@ -145,10 +162,16 @@ function submitData() {
     alert("Please fill in Topic and Article.");
     return;
   }
+    const noDate = document.getElementById("noDate").checked;
+
+if (noDate) {
+  localStorage.setItem("date", "");
+} else {
+  localStorage.setItem("date", document.getElementById("date").value);
+}
 
   localStorage.setItem("topic", topic);
   localStorage.setItem("author", document.getElementById("author").value);
-  localStorage.setItem("date", document.getElementById("date").value);
   localStorage.setItem("publisher", document.getElementById("publisher").value);
   localStorage.setItem("article", article);
   localStorage.setItem("field", document.getElementById("field").value);
