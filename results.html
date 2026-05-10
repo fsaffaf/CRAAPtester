@@ -89,6 +89,17 @@ function analyzeCRAAP() {
   /* =========================
      CURRENCY (YOUR RULES)
   ========================= */
+// If no date was selected
+if (!yearDiff && yearDiff !== 0) {
+  setResult(
+    "currency",
+    "FAIL ❌",
+    "No publication date is provided, so the timeliness of this source cannot be evaluated."
+  );
+  return;
+}
+
+  // if date is selected
 
   switch(field) {
 
