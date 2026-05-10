@@ -207,12 +207,39 @@ function analyzeCRAAP() {
     setResult("relevance", "CAUTION ⚠️", "The article may not strongly match the topic.");
   }
 
-  // Authority
-  if (author) {
-    setResult("authority", "PASS ✅", "Author is identified, improving credibility.");
-  } else {
-    setResult("authority", "CAUTION ⚠️", "Missing author reduces trustworthiness.");
-  }
+ /* =========================
+    AUTHORITY
+  ========================= */
+  // Normalize input
+const normalizedAuthor = author ? author.trim().toLowerCase() : "";
+
+// Exact "no author" values
+const noAuthorExact = ["none", "na", "n/a", "unknown", ""];
+
+// Partial phrases that indicate no author
+const noAuthorPartial = [
+  "no author",
+  "no listed author",
+  "no identifiable author",
+  "author not available",
+  "author unavailable"
+];
+
+// Check conditions
+const isExactMatch = noAuthorExact.includes(normalizedAuthor);
+const isPartialMatch = noAuthorPartial.some(phrase =>
+  normalizedAuthor.includes(phrase)
+);
+
+if (!isExactMatch && !isPartialMatch) {
+  setResult("authority", "PASS ✅", "Author is identified, improving credibility.");
+} else {
+  setResult(
+    "authority",
+    "CAUTION ⚠️",
+    "Caution: This source does not list an individual author. Individual credentials cannot be assessed. Evaluate the credibility of the publishing organization carefully to determine authority."
+  );
+}
 
   // Accuracy
   if (article.length > 1000) {
