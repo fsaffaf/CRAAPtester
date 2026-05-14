@@ -84,51 +84,15 @@ function analyzeCRAAP() {
 let yearDiff = null;
 
 if (!date) {
-  // ✅ No date → FAIL, but DO NOT stop the program
+  // ✅ No date selected OR checkbox checked → FORCE FAIL
   setResult(
     "currency",
     "FAIL ❌",
     "Caution: No publication date is provided, so the timeliness of this source cannot be evaluated. Currency is critical when determining reliability."
   );
 } else {
-  // ✅ Calculate years only if date exists
+  // ✅ Calculate years ONLY if a date exists
   yearDiff = new Date().getFullYear() - new Date(date).getFullYear();
-
-  // ✅ Run your existing switch logic
-  switch(field) {
-
-    case "medical":
-      if (yearDiff <= 4) {
-        setResult("currency", "PASS ✅", "Medical sources must be very recent (0–4 years).");
-      } else if (yearDiff === 5) {
-        setResult("currency", "CAUTION ⚠️", "5-year-old medical sources may be slightly outdated.");
-      } else {
-        setResult("currency", "FAIL ❌", "Medical research older than 5 years is often unreliable.");
-      }
-      break;
-
-    case "physics":
-      setResult("currency", "PASS ✅", "Physics allows older foundational sources (no time limit).");
-      break;
-
-    case "engineering":
-      if (yearDiff <= 4) {
-        setResult("currency", "PASS ✅", "Recent engineering data (≤4 years) is preferred.");
-      } else if (yearDiff <= 15) {
-        setResult("currency", "CAUTION ⚠️", "Moderately old engineering info may still apply.");
-      } else {
-        setResult("currency", "FAIL ❌", "Engineering data over 15 years old is outdated.");
-      }
-      break;
-
-    // ✅ keep ALL your other cases exactly as they are...
-
-    default:
-      setResult("currency", "CAUTION ⚠️", "No specific rule for this field.");
-  }
-}
-
-  // if date is selected
 
   switch(field) {
 
@@ -235,6 +199,7 @@ if (!date) {
     default:
       setResult("currency", "CAUTION ⚠️", "No specific rule for this field.");
   }
+}
 
   /* =========================
      OTHER CRAAP COMPONENTS
