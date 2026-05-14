@@ -49,17 +49,18 @@
     resize: vertical;
   }
 
-  button {
-    width: 50%;
-    padding: 12px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
+button {
+  width: 50%;
+  padding: 12px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 10px auto;   /* ✅ centers horizontally */
+  display: block;      /* ✅ required for auto margin */
+}
 
   button:hover {
     background: #5a67d8;
@@ -160,7 +161,7 @@
       id="publisher"
       placeholder="Copy and paste the full article text here. Include the title, author, and references. There is no character limit."
       required>
-    <textarea id="article" rows="10"></textarea>
+    <textarea id="article" rows="6"></textarea>
   </div>
 
   <button onclick="submitData()">Analyze</button>
