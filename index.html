@@ -38,12 +38,16 @@
     font-weight: bold;
   }
 
-  input, textarea, select {
+
+  input[type="text"],
+  input[type="date"],
+  textarea,
+  select {
     width: 100%;
     padding: 10px;
     border-radius: 6px;
     border: 1px solid #ccc;
-  }
+}
 
   textarea {
     resize: vertical;
@@ -103,8 +107,8 @@ button {
     <input 
       type="date" 
       id="date">
-    <div style="margin-right: 2px;">
-      <label style="font-weight: normal;">
+    <div style="margin-top: 6px;">
+      <label style="font-weight: normal; display: flex; align-items: center; gap: 6px;">
         <input 
           type="checkbox" 
           id="noDate" 
