@@ -78,17 +78,17 @@
   <h1>CRAAP Test Analyzer</h1>
 
   <div class="form-group">
-  <label>Your Topic's Keywords:</label>
+  <label>Topic Keywords & Synonyms:</label>
   <input 
     type="text" 
     id="topic" 
-    placeholder="List the keywords in your topic, including common synonyms"
+    placeholder="Teen, adolescent, mental health, psychological disorders, ..."
     required
   >
 </div>
 
   <div class="form-group">
-    <label>Author:</label>
+    <label>Article Author(s):</label>
     <input 
       type="text" 
       id="author" 
@@ -97,7 +97,7 @@
   </div>
 
 <div class="form-group">
-  <label>Date:</label>
+  <label>Article Publication Date:</label>
   <div>
     <input 
       type="date" 
@@ -107,14 +107,14 @@
         <input 
           type="checkbox" 
           id="noDate" 
-          onclick="toggleDate()"> No date provided
+          onclick="toggleDate()"> Click if no date provided:
       </label>
     </div>
   </div>
 </div>
 
   <div class="form-group">
-    <label>Publisher:</label>
+    <label>Article Publisher or Website Name:</label>
     <input 
       type="text" 
       id="publisher"
@@ -141,7 +141,7 @@
     </optgroup>
 
     <optgroup label="Humanities">
-      <option value="humanities">History, Philosophy, Literature, Religious Writings</option>
+      <option value="humanities">History, Philosophy, Literature, or Religious Writings</option>
     </optgroup>
 
     <optgroup label="Applied / Public">
