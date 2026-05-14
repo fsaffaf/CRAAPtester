@@ -67,6 +67,9 @@ function analyzeCRAAP() {
   const date = localStorage.getItem("date") || "";
   const article = localStorage.getItem("article") || "";
   const field = localStorage.getItem("field") || "";
+  const qualification = localStorage.getItem("qualification") || "";
+  const verification = localStorage.getItem("verification") || "";
+  const credentials = localStorage.getItem("credentials") || "";
 
   let results = {};
 
@@ -212,16 +215,15 @@ if (!date) {
     setResult("relevance", "CAUTION ⚠️", "The article may not strongly match the topic.");
   }
 
- /* =========================
-    AUTHORITY
-  ========================= */
-  // Normalize input
+/* =========================
+   AUTHORITY (UPGRADED)
+========================= */
+
+// Normalize author input
 const normalizedAuthor = author ? author.trim().toLowerCase() : "";
 
-// Exact "no author" values
+// Check for missing author
 const noAuthorExact = ["none", "na", "n/a", "unknown", ""];
-
-// Partial phrases that indicate no author
 const noAuthorPartial = [
   "no author",
   "no listed author",
@@ -230,22 +232,47 @@ const noAuthorPartial = [
   "author unavailable"
 ];
 
-// Check conditions
 const isExactMatch = noAuthorExact.includes(normalizedAuthor);
 const isPartialMatch = noAuthorPartial.some(phrase =>
   normalizedAuthor.includes(phrase)
 );
 
-if (!isExactMatch && !isPartialMatch) {
-  setResult("authority", "PASS ✅", "Author is identified, improving credibility.");
-} else {
+// ✅ MAIN AUTHORITY LOGIC
+if (isExactMatch || isPartialMatch) {
+  setResult(
+    "authority",
+    "FAIL ❌",
+    "No identifiable author is listed. Without an author, credibility is very difficult to verify."
+  );
+}
+else if (verification === "verified" && qualification === "expert") {
+  setResult(
+    "authority",
+    "PASS ✅",
+    "The author is highly qualified and was verified on a credible external source."
+  );
+}
+else if (verification === "verified") {
+  setResult(
+    "authority",
+    "PASS ✅",
+    "The author was successfully verified on a credible website."
+  );
+}
+else if (verification === "partial" || qualification === "professional") {
   setResult(
     "authority",
     "CAUTION ⚠️",
-    "Caution: This source does not list an individual author. Individual credentials cannot be assessed. Evaluate the credibility of the publishing organization carefully to determine authority."
+    "Some author information was found, but credibility is not fully confirmed."
   );
 }
-
+else {
+  setResult(
+    "authority",
+    "FAIL ❌",
+    "The author could not be verified on any reliable external source."
+  );
+}
   // Accuracy
   if (article.length > 1000) {
     setResult("accuracy", "PASS ✅", "Longer content suggests evidence and development.");
@@ -271,7 +298,8 @@ if (!isExactMatch && !isPartialMatch) {
     <div class="section"><strong>Topic:</strong> ${topic}</div>
     <div class="section"><strong>Publisher:</strong> ${publisher}</div>
     <div class="section"><strong>Years Old:</strong> ${yearDiff ?? "N/A"}</div>
-
+    <div class="section"><strong>Author Verification:</strong> ${verification || "Not provided"}</div>
+    <div class="section"><strong>Credentials:</strong> ${credentials || "Not provided"}</div>
     <hr>
 
     <div class="section"><b>Currency: Is it new?</b><br>${results.currency}</div>
