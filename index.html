@@ -50,7 +50,7 @@
   }
 
   button {
-    width: 100%;
+    width: 50%;
     padding: 12px;
     background: #667eea;
     color: white;
@@ -102,7 +102,7 @@
     <input 
       type="date" 
       id="date">
-    <div style="margin-top: 6px;">
+    <div style="margin-right: 2px;">
       <label style="font-weight: normal;">
         <input 
           type="checkbox" 
@@ -118,7 +118,7 @@
     <input 
       type="text" 
       id="publisher"
-      placeholder="e.g., BBC, World Health Organization, Journal of Social Psychology, ..."
+      placeholder="BBC, World Health Organization, New York Times, Journal of Social Psychology, ..."
       required>
   </div>
 
@@ -154,8 +154,13 @@
 </div>
   
   <div class="form-group">
-    <label>Article:</label>
-    <textarea id="article" rows="6"></textarea>
+    <label>Full Article Text:</label>
+    <input 
+      type="text" 
+      id="publisher"
+      placeholder="Copy and paste the full article text here. Include the title, author, and references. There is no character limit."
+      required>
+    <textarea id="article" rows="10"></textarea>
   </div>
 
   <button onclick="submitData()">Analyze</button>
